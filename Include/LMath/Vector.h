@@ -1,491 +1,676 @@
-#pragma once
+/*
+Copyright (c) 2019 Lior Lahav
 
-#include <type_traits>
-#include <algorithm>
-#include <stdexcept>
-#include <limits>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-//#define LL_VECTOR_OGRE_EXTENSIONS
-#define LMATH_VECTOR_WINDOWS_EXTENSIONS
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-#ifdef LMATH_VECTOR_WINDOWS_EXTENSIONS
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+#ifndef __LMATH_VECTOR_H__
+#define __LMATH_VECTOR_H__ 1
+
+#include "LMathConfig.h"
+#include "Element.h"
+
+#if LMATH_VECTOR_WINDOWS_EXTENSIONS == 1
 	#include <Windows.h>
-	#pragma push_macro("min")
-	#pragma push_macro("max")
-	#undef min
-	#undef max
 #endif
 
 
-#ifdef LMATH_VECTOR_OGRE_EXTENSIONS
-	#include "OgreVector2.h"
-	#include "OgreVector3.h"
+#if LMATH_VECTOR_OGRE_EXTENSIONS == 1
+#include <OgreVector2.h>
+#include <OgreVector3.h>
 #endif
 
-
-
-template <typename T, size_t dim>
-class VectorBase
+namespace LMath
 {
-public:
-	using ElementType = typename T;
-	inline static ElementType L_Epsilon = std::numeric_limits<ElementType>::epsilon();
-	inline static constexpr ElementType L_Half = static_cast<ElementType>(0.5);
-	inline static constexpr ElementType L_Zero = static_cast<ElementType>(0);
-	inline static constexpr ElementType L_One = static_cast<ElementType>(1);
-	inline static constexpr ElementType L_Two = static_cast<ElementType>(2);
-	inline static constexpr ElementType L_Four = static_cast<ElementType>(4);
-	
-	
-	inline static ElementType UninitializedValue = std::numeric_limits< ElementType>::min();
-	static const VectorBase Uninitialized;
-	static const VectorBase Zero;
-	static const VectorBase Unit;
-
-	
-#pragma region Contructors
-
-	template <typename... Args, typename = typename std::enable_if_t<sizeof...(Args) == dim - 1>>
-	VectorBase(ElementType first, Args... args)
+	template <typename T, size_t dim >
+	class VectorBaseCartesian : public ElementBase<T, dim>
 	{
-		_Assign(0, static_cast<ElementType>(first), static_cast<ElementType>(args)...);
-	}
+		using BaseClass = ElementBase<T, dim>;
+		using BaseClass::BaseClass;
+	};
 
-	VectorBase(const ElementType* data)
+#if LMATH_VECTOR_CARTESIAN_COMPONENT & LMATH_VECTOR_CARTESIAN_COMPONENT_PLAIN_VARIABLE_BIG_CASE
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_UPPER_CASE ElementType& X = this->at(0);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_UPPER_CASE ElementType& Y = this->at(1);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_UPPER_CASE ElementType& Z = this->at(2);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_UPPER_CASE ElementType& W = this->at(3);
+#else
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_UPPER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_UPPER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_UPPER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_UPPER_CASE 
+#endif
+
+#if LMATH_VECTOR_CARTESIAN_COMPONENT & LMATH_VECTOR_CARTESIAN_COMPONENT_PLAIN_VARIABLE_LOW_CASE
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_LOWER_CASE ElementType& x = this->at(0);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_LOWER_CASE ElementType& y = this->at(1);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_LOWER_CASE ElementType& z = this->at(2);
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_LOWER_CASE ElementType& w = this->at(3);
+#else
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_LOWER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_LOWER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_LOWER_CASE 
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_LOWER_CASE 
+#endif
+
+#if LMATH_VECTOR_CARTESIAN_COMPONENT & LMATH_VECTOR_CARTESIAN_COMPONENT_GETTER
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_GETTER ElementType& X() {return this->at(0);} const ElementType& X() const {return this->at(0);}
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_GETTER ElementType& Y() {return this->at(1);} const ElementType& Y() const {return this->at(1);}
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_GETTER ElementType& Z() {return this->at(2);} const ElementType& Z() const {return this->at(2);}
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER ElementType& W() {return this->at(3);} const ElementType& W() const {return this->at(3);}
+
+#else
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_0_GETTER
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_1_GETTER
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_2_GETTER
+	#define LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
+#endif
+
+
+#define LMATH_DEFINE_CARTESIAN_COMPONENT_0 \
+LMATH_DEFINE_CARTESIAN_COMPONENT_0_LOWER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_0_UPPER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_0_GETTER
+
+#define LMATH_DEFINE_CARTESIAN_COMPONENT_1 \
+LMATH_DEFINE_CARTESIAN_COMPONENT_1_LOWER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_1_UPPER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_1_GETTER
+
+#define LMATH_DEFINE_CARTESIAN_COMPONENT_2 \
+LMATH_DEFINE_CARTESIAN_COMPONENT_2_LOWER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_2_UPPER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_2_GETTER
+
+#define LMATH_DEFINE_CARTESIAN_COMPONENT_3 \
+LMATH_DEFINE_CARTESIAN_COMPONENT_3_LOWER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_3_UPPER_CASE \
+LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
+
+
+	template <typename T>
+	class VectorBaseCartesian<T, 1> : public ElementBase<T, 1>
 	{
-		memcpy(&mElements, data, sizeof(ElementType) * dim);
-	}
+	public:
+		using BaseClass = ElementBase<T, 1>;
+		using BaseClass::BaseClass;
+		using ElementType = typename BaseClass::ElementType;
+		VectorBaseCartesian(const BaseClass& base) : BaseClass(base) {}
+		LMATH_DEFINE_CARTESIAN_COMPONENT_0
+	};
 
-	template <typename RHS_U, size_t RHS_DIM>
-	//Convert from any vector to any vector 
-	VectorBase(const VectorBase<RHS_U, RHS_DIM> & rhs)
+
+	template <typename T>
+	class VectorBaseCartesian<T, 2> : public ElementBase<T, 2>
 	{
-		const size_t elementsToConvert = std::min(dim, RHS_DIM);
+	public:
+		using BaseClass = ElementBase<T, 2>;
+		using BaseClass::BaseClass;
+		using ElementType = typename BaseClass::ElementType;
+		VectorBaseCartesian(const BaseClass& base) : BaseClass(base) {}
+		LMATH_DEFINE_CARTESIAN_COMPONENT_0
+		LMATH_DEFINE_CARTESIAN_COMPONENT_1
 
-		for (size_t i = 0; i < elementsToConvert; i++)
-			at(i) = rhs.at(i);
+		static const VectorBaseCartesian Up;
+		static const VectorBaseCartesian Down;
+		static const VectorBaseCartesian Left;
+		static const VectorBaseCartesian Right;
+	};
 
-
-		for (size_t i = elementsToConvert; i < dim; i++)
-			at(i) = 0;
-	}
-
-	VectorBase() : VectorBase(UninitializedValue)
+	template <typename T>
+	class VectorBaseCartesian<T, 3> : public ElementBase<T, 3>
 	{
+	public:
+		using BaseClass = ElementBase<T, 3>;
+		using BaseClass::BaseClass;
+		using BaseClass::at;
+		using ElementType = typename BaseClass::ElementType;
+		VectorBaseCartesian(const BaseClass& base) : BaseClass(base){}
 
-	}
+		LMATH_DEFINE_CARTESIAN_COMPONENT_0
+		LMATH_DEFINE_CARTESIAN_COMPONENT_1
+		LMATH_DEFINE_CARTESIAN_COMPONENT_2
 
-	VectorBase(ElementType initializationValue)
+		static const VectorBaseCartesian Down;
+		static const VectorBaseCartesian Up;
+		static const VectorBaseCartesian Left;
+		static const VectorBaseCartesian Right;
+		static const VectorBaseCartesian Forward;
+		static const VectorBaseCartesian Backward;
+	};
+
+	template <typename T>
+	class VectorBaseCartesian<T, 4> : public ElementBase<T, 4>
 	{
-		for (size_t i = 0; i < dim; i++)
-			at(i) = initializationValue;
-	}
+	public:
+		using BaseClass = ElementBase<T, 4>;
+		using BaseClass::BaseClass;
+		using ElementType = typename BaseClass::ElementType;
+		VectorBaseCartesian(const BaseClass& base) : BaseClass(base) {}
+
+		LMATH_DEFINE_CARTESIAN_COMPONENT_0
+		LMATH_DEFINE_CARTESIAN_COMPONENT_1
+		LMATH_DEFINE_CARTESIAN_COMPONENT_2
+		LMATH_DEFINE_CARTESIAN_COMPONENT_3
+
+	};
 
 
-	VectorBase(const std::initializer_list<ElementType>& initList)
+	template <typename T, size_t dim>
+	class VectorBase : public VectorBaseCartesian<T, dim>
 	{
-		if (initList.size() != dim)
-			throw std::runtime_error("Error, wrong numbe of arguments");
-
-		for (size_t i = 0; i < initList.size(); i++)
-			at(i) = *(initList.begin() + i);
-		//auto it = initList.begin();
-		//size_t i = 0;
+	public:
+		using BaseClass = VectorBaseCartesian<T, dim>;
+		using VectorBaseCartesian<T, dim>::VectorBaseCartesian;
+		using BaseClass::at;
+		using ElementType = typename BaseClass::ElementType;
 		
-		/*while (it != initList.end())
+		static const VectorBase Zero;
+		static const VectorBase Unit;
+
+        VectorBase(const BaseClass& base) : BaseClass(base)
+        {
+
+        }
+
+
+		bool operator ==(const VectorBase& rhs) const
 		{
-			at(i) = *it;
-			it++;
-			i++;
-		}*/
-	}
-#pragma endregion
-	
-	ElementType& at(size_t idx)
-	{
-		return mElements[idx];
-	}
+			for (size_t i = 0; i < dim; i++)
+				if (at(i) != rhs.at(i))
+					return false;
 
-	const ElementType& at(size_t idx) const
-	{
-		return mElements[idx];
-	}
+			return true;
+		}
 
-	bool IsInitialzied() const
-	{
-		for (size_t i = 0; i < dim; i++)
-			if (at(i) == UninitializedValue)
-				return false;
-
-		return true;
-	}
-
-	ElementType DotProduct(const VectorBase& rhs) const
-	{
-		ElementType ret = 0;
-		for (size_t i = 0; i < dim; i++)
-			ret += at(i) * rhs.at(i);
-		return ret;
-	}
-
-	template< typename = typename std::enable_if_t<std::is_floating_point_v<ElementType> >>
-	VectorBase Round() const
-	{
-		VectorBase ret;
-
-		for (size_t i = 0; i < dim; i++)
-			ret.at(i) = std::round(at(i));
-
-		return ret;
-	}
-
-
-	template< typename = typename std::enable_if_t< (dim == 3)>>
-	VectorBase Cross(const VectorBase& rhs)
-	{
-		return
+		bool operator !=(const VectorBase& rhs) const
 		{
-			at(1) * rhs.at(2) - at(2) * rhs.at(1),
-			at(2) * rhs.at(0) - at(0) * rhs.at(2),
-			at(0) * rhs.at(1) - at(1) * rhs.at(0)
-		};
-	}
+			return !(*this == rhs);
+		}
 
-	template< typename = typename std::enable_if_t< (dim == 3)>>
-	VectorBase Orthogonal() const
-	{
-		return at(2) < at(0) ? VectorBase(at(1), -at(0), 0) : VectorBase(0, -at(2), at(1));
-	}
+		ElementType Dot(const VectorBase& rhs) const
+		{
+			ElementType ret = 0;
+			for (size_t i = 0; i < dim; i++)
+				ret += at(i) * rhs.at(i);
+			return ret;
+		}
+
+		VectorBase Round() const
+		{
+			VectorBase ret;
+
+			for (size_t i = 0; i < dim; i++)
+				ret.at(i) = std::round(at(i));
+
+			return ret;
+		}
 
 
+		
 
+		ElementType NormSquared() const { return Dot(*this); }
+		ElementType SquaredLength() const { return NormSquared(); }
+
+
+		double Norm() const { return std::sqrt(NormSquared()); }
+		double Length() const { return Norm(); }
+
+
+		bool isZeroLength() const
+		{
+			return SquaredLength() < std::numeric_limits<ElementType>::epsilon();
+		}
+
+		VectorBase Normalized() const
+		{
+			double norm = Norm();
+			return norm > 0 ? *this / norm : Zero;
+		}
 	
-	
-	
-	ElementType NormSquared() const { return DotProduct(*this); }
-	ElementType SquaredLength() const { return NormSquared(); }
-	
-	double Norm() const { return std::sqrt(DotProduct(*this)); }
-	double Length() const { return Norm(); }
-
-	
-	bool isZeroLength() const
-	{
-		return SquaredLength() < std::numeric_limits<ElementType>::epsilon();
-	}
-
-	bool operator ==(const VectorBase& rhs) const
-	{
-		for (size_t i = 0; i < dim; i++)
-			if (at(i) != rhs.at(i))
-				return false;
-
-		return true;
-	}
-
-	bool operator !=(const VectorBase& rhs) const
-	{
-		return !(*this == rhs);
-	}
 
 #pragma region Arithmetic
 
-	VectorBase operator -() const
-	{
-		VectorBase vec;
-
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = -at(i);
-		return vec;
-	}
-
-
-	VectorBase operator -(ElementType value) const
-	{
-		VectorBase vec;
-
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i)  - value;
-		return vec;
-	}
-
-	friend VectorBase operator-(ElementType value, const VectorBase& vec)
-	{
-		VectorBase ret;
-
-		for (size_t i = 0; i < dim; i++)
-			ret.at(i) = value - vec.at(i);
-		return ret;
-	}
-
-	VectorBase operator -(const VectorBase& value)  const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) - value.at(i);
-		return vec;
-	}
-
-	VectorBase operator +(ElementType value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) + value;
-
-		return vec;
-	}
-
-	friend VectorBase operator +(ElementType value, const VectorBase& vec)
-	{
-		return  vec + value;
-	}
-
-	VectorBase operator +(const VectorBase& value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) + value.at(i);
-
-		return vec;
-	}
-
-
-	friend VectorBase operator*(ElementType value, const VectorBase& vec)
-	{
-		return vec * value;
-	}
-
-
-	VectorBase operator *(ElementType value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) =  at(i) * value;
-
-		return vec;
-	}
-
-	VectorBase operator *(const VectorBase& value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) * value.at(i);
-
-		return vec;
-	}
-
-
-
-	friend VectorBase operator/(ElementType value, const VectorBase& vec)
-	{
-		VectorBase ret;
-		for (size_t i = 0; i < dim; i++)
-			ret.at(i) = value / vec.at(i);
-
-		return ret;
-	}
-
-
-	VectorBase operator /(ElementType value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) / value;
-
-		return vec;
-	}
-
-	VectorBase operator /(const VectorBase& value) const
-	{
-		VectorBase vec;
-		for (size_t i = 0; i < dim; i++)
-			vec.at(i) = at(i) / value.at(i);
-
-		return vec;
-	}
-#pragma endregion
-
-	VectorBase Max(const VectorBase& rhs) const 
-	{
-		VectorBase ret;
-		for (size_t i = 0; i < dim; i++)
-			ret.at(i) = std::max(at(i), rhs.at(i));
 		
-		return ret;
-	}
-
-	VectorBase Min(const VectorBase& rhs) const
-	{
-		VectorBase ret;
-		for (size_t i = 0; i < dim; i++)
-			ret.at(i) = std::min(at(i), rhs.at(i));
-
-		return ret;
-	}
-
-
-	VectorBase Normalize() const
-	{
-		double norm = Norm();
-		return norm > 0 ? *this / norm : Zero;
-	}
-
-	VectorBase Reflect(const VectorBase& normal) const
-	{
-		return *this - static_cast<VectorBase::ElementType>(2) * DotProduct(normal) * normal;
-	}
-
-
-#ifdef LMATH_VECTOR_WINDOWS_EXTENSIONS
-	static constexpr bool Is2DimIntegral = dim == 2 && std::is_integral_v<ElementType>;
-
-	template< typename = typename std::enable_if_t<Is2DimIntegral>>
-	operator POINT() const
-	{
-		return { at(0), at(1)};
-	}
-
-	template< typename = typename std::enable_if_t<Is2DimIntegral>>
-	VectorBase(const POINT& p)
-	{
-		at(0) = p.x;
-		at(1) = p.y;
-	}
-
-	template< typename = typename std::enable_if_t<Is2DimIntegral>>
-	operator SIZE() const
-	{
-		return { at(0), at(1) };
-	}
-
-	template< typename = typename std::enable_if_t<Is2DimIntegral>>
-	VectorBase(const SIZE& p)
-	{
-		at(0) = p.cx;
-		at(1) = p.cy;
-	}
-	
-#endif
-
-
-	
-#ifdef LMATH_VECTOR_OGRE_EXTENSIONS
-	template< typename = typename std::enable_if_t< (dim == 2)>>
-	Ogre::Vector2 ToVector2() const
-	{
-
-		return { at(0) ,at(1) };
-	}
-
-	template< typename = typename std::enable_if_t< (dim == 3)>>
-	Ogre::Vector2 ToVector3() const
-	{
-		return { at(0) ,at(1), at(2) };
-	}
-
-	template< typename = typename std::enable_if_t< (dim == 4)>>
-	Ogre::Vector2 ToVector4() const
-	{
-		return { at(0) ,at(1), at(2),at(3) };
-	}
-#endif
-
-#pragma region EuclidSpaceNotation
-	template< typename = typename std::enable_if_t< (dim >= 1)>>
-	ElementType& X() 
-	{
-		return at(0);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 1)>>
-	const ElementType& X() const
-	{
-		return at(0);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 2)>>
-	ElementType & Y()
-	{
-		return at(1);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 2)>>
-	const ElementType & Y() const
-	{
-		return at(1);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 3)>>
-	ElementType & Z()
-	{
-		return at(2);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 3)>>
-	const ElementType & Z() const
-	{
-		return at(2);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 4)>>
-	ElementType& W()
-	{
-		return at(3);
-	}
-
-	template< typename = typename std::enable_if_t< (dim >= 4)>>
-	const ElementType& W() const
-	{
-		return at(3);
-	}
-#pragma endregion
-
-#pragma region Private helper methods
-	private:
-		//Vector consturctor helper, faster than using initializer list.
-		void _Assign(size_t index, ElementType element)
+		VectorBase operator -() const
 		{
-			at(index) = element;
+			VectorBase vec;
+
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = -at(i);
+			return vec;
 		}
 
-		template <typename ElementType, typename ...ARGS>
-		void _Assign(size_t index, ElementType element, ARGS... args)
+		//operator -
+		VectorBase operator -(ElementType value) const
 		{
-			at(index) = element;
-			_Assign(index + 1, args...);
+			VectorBase vec;
+
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) - value;
+			return vec;
+		}
+
+		friend VectorBase operator-(ElementType value, const VectorBase& vec)
+		{
+			VectorBase ret;
+
+			for (size_t i = 0; i < dim; i++)
+				ret.at(i) = value - vec.at(i);
+			return ret;
+		}
+
+		VectorBase operator -(const VectorBase& value)  const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) - value.at(i);
+			return vec;
+		}
+
+		VectorBase& operator -=(ElementType value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) - value;
+
+			return *this;
+		}
+
+		VectorBase& operator -=(const VectorBase& value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) - value.at(i);
+
+			return *this;
+		}
+
+
+		// opeator  +
+		VectorBase operator +(ElementType value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) + value;
+
+			return vec;
+		}
+
+		friend VectorBase operator +(ElementType value, const VectorBase& vec)
+		{
+			return  vec + value;
+		}
+
+		VectorBase operator +(const VectorBase& value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) + value.at(i);
+
+			return vec;
+		}
+
+
+		VectorBase& operator +=(ElementType value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) + value;
+
+			return *this;
+		}
+
+		VectorBase& operator +=(const VectorBase& value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) + value.at(i);
+
+			return *this;
+		}
+
+
+		//operator *
+		friend VectorBase operator*(ElementType value, const VectorBase& vec)
+		{
+			return vec * value;
+		}
+
+
+		VectorBase operator *(ElementType value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) * value;
+
+			return vec;
+		}
+
+		VectorBase& operator *=(ElementType value) 
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) * value;
+
+			return *this;
+		}
+
+		VectorBase& operator *=(const VectorBase& value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) * value.at(i);
+
+			return *this;
+		}
+
+
+		VectorBase operator *(const VectorBase& value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) * value.at(i);
+
+			return vec;
+		}
+
+
+		// Operator /
+		friend VectorBase operator/(ElementType value, const VectorBase& vec)
+		{
+			VectorBase ret;
+			for (size_t i = 0; i < dim; i++)
+				ret.at(i) = value / vec.at(i);
+
+			return ret;
+		}
+
+		VectorBase& operator /=(const VectorBase& value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) / value.at(i);
+
+			return *this;
+		}
+
+		VectorBase& operator /=(const ElementType value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) / value;
+
+			return *this;
+		}
+
+
+		VectorBase operator /(ElementType value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) / value;
+
+			return vec;
+		}
+
+		VectorBase operator /(const VectorBase& value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) / value.at(i);
+
+			return vec;
+		}
+		
+		// Operator %
+		VectorBase operator %(const VectorBase& value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) & value.at(i);
+			return vec;
+		}
+
+		VectorBase operator %(ElementType value) const
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = at(i) & value;
+			return vec;
+		}
+
+		friend VectorBase operator %(ElementType value, const VectorBase& vec)
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				vec.at(i) = value % at(i);
+			return vec;
+		}
+
+		VectorBase& operator %=(ElementType value) 
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) &= value;
+			return this;
+		}
+
+		VectorBase& operator %=(const VectorBase& value)
+		{
+			for (size_t i = 0; i < dim; i++)
+				at(i) = at(i) &= value.at(i);
+			return this;
+		}
+
+	
+
+
+		// mathematic modulo operation
+		VectorBase Modulo(const VectorBase& value)
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				at(i) = LMath::Modulo(at(i), value.at(i));
+			
+			return vec;
+		}
+
+		VectorBase Modulo(ElementType value)
+		{
+			VectorBase vec;
+			for (size_t i = 0; i < dim; i++)
+				at(i) = LMath::Modulo(at(i), value);
+			return vec;
 		}
 
 #pragma endregion
+
+		VectorBase Max(const VectorBase& rhs) const
+		{
+			VectorBase ret;
+			for (size_t i = 0; i < dim; i++)
+				ret.at(i) = (std::max)(at(i), rhs.at(i));
+
+			return ret;
+		}
+
+		VectorBase Min(const VectorBase& rhs) const
+		{
+			VectorBase ret;
+			for (size_t i = 0; i < dim; i++)
+				ret.at(i) = (std::min)(at(i), rhs.at(i));
+
+			return ret;
+		}
+
+
+		ElementType Distance(const VectorBase& rhs) const
+		{
+			return (*this - rhs).Length();
+		}
+
+
+		VectorBase Lerp(const VectorBase& rhs , double t) const
+		{
+			return (rhs - *this) * t + *this;
+		}
+
+		VectorBase Slerp(const VectorBase& rhs, double t) const
+		{
+			VectorBase a = *this;
+			VectorBase b = rhs;
+			double magA = a.Length();
+			double magB = b.Length();
+			a /= magA;
+			b /= magB;
+			double dot = std::clamp(a.Dot(b), -L_One, L_One);
+			double theta = acos(dot) * t;
+			VectorBase relativeVec = (b - a * dot).Normalized();
+			VectorBase newVec = a * std::cos(theta) + relativeVec * std::sin(theta);
+			return newVec * (magA + (magB - magA) * t);
+		}
+
+
+		double Angle(const VectorBase& rhs) const
+		{
+			return std::acos(std::clamp(Dot(rhs) / (Length() * rhs.Length()), -L_One, L_One));
+		}
+
+#pragma region Vector2/3 specific
+
 		
 
-private:
-	ElementType mElements[dim];
-};
 
-template <int dim>
-using VectorI32 = VectorBase<int32_t, dim>;
+		VectorBase Cross(const VectorBase& rhs) const
+		{
+			static_assert(dim == 3, "not a vector with 3 dimensions");
+			
+			return
+			{
+				at(1) * rhs.at(2) - at(2) * rhs.at(1),
+				at(2) * rhs.at(0) - at(0) * rhs.at(2),
+				at(0) * rhs.at(1) - at(1) * rhs.at(0)
+			};
+		}
 
-template <int dim>
-using VectorI64 = VectorBase<int64_t, dim>;
+		VectorBase Orthogonal() const
+		{
+			static_assert(dim == 3, "not a vector with 3 dimensions");
+			return at(2) < at(0) ? VectorBase(at(1), -at(0), 0) : VectorBase(0, -at(2), at(1));
+		}
 
-template <int dim>
-using VectorF64 = VectorBase<double, dim>;
+		
 
-template <int dim>
-using VectorF32 = VectorBase<float, dim>;
+		VectorBase Reflect(const VectorBase& normal) const
+		{
+			static_assert(dim == 3 || dim == 2, "not a vector with two or three dimensions");
+			return *this -  L_Two * Dot(normal)* normal;
+		}
 
-template <class T, size_t dim>
-const VectorBase<T, dim> VectorBase<T, dim>::Uninitialized;
+		
 
-
-template <class T, size_t dim>
-const VectorBase<T, dim> VectorBase<T, dim>::Zero(VectorBase<T, dim>::L_Zero);
-
-template <class T, size_t dim>
-const VectorBase<T, dim> VectorBase<T, dim>::Unit(VectorBase<T, dim>::L_One);
+#pragma endregion
 
 
-#ifdef LMATH_VECTOR_WINDOWS_EXTENSIONS
-#pragma pop_macro("min")
-#pragma pop_macro("max")
+#if LMATH_VECTOR_WINDOWS_EXTENSIONS == 1
+		operator POINT() const
+		{
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+			return { at(0), at(1) };
+		}
+
+		VectorBase(const POINT& p)
+		{
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+			at(0) = p.x;
+			at(1) = p.y;
+		}
+		
+		operator SIZE() const
+		{
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+			return { at(0), at(1) };
+		}
+		
+		VectorBase(const SIZE& p)
+		{
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+			at(0) = p.cx;
+			at(1) = p.cy;
+		}
+
+#endif
+
+
+
+#if LMATH_VECTOR_OGRE_EXTENSIONS == 1
+        VectorBase(const Ogre::Vector2 & v) 
+        {
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+            return (v.x, v.y);
+        }
+
+        operator Ogre::Vector2() const
+        {
+            static_assert(dim == 2, "not a vector with 2 dimensions");
+            return { at(0) ,at(1) };
+        }
+
+        VectorBase(const Ogre::Vector3& v)
+        {
+            static_assert(dim == 3, "not a vector with 3 dimensions");
+            return (v.x, v.y, v.z);
+        }
+
+        operator Ogre::Vector3() const
+        {
+            static_assert(dim == 3, "not a vector with 3 dimensions");
+            return { at(0) ,at(1) , at(2) };
+        }
+
+        VectorBase(const Ogre::Vector4& v)
+        {
+            static_assert(dim == 4, "not a vector with 4 dimensions");
+            return (v.x, v.y,v.z,v.w);
+        }
+
+        operator Ogre::Vector4() const
+        {
+            static_assert(dim == 4, "not a vector with 4 dimensions");
+            return { at(0) ,at(1), at(2), at(3) };
+        }
+#endif
+
+
+
+	};
+	template <class T>	const VectorBaseCartesian<T, 2> VectorBaseCartesian<T, 2>::Up (0, 1);
+	template <class T>	const VectorBaseCartesian<T, 2> VectorBaseCartesian<T, 2>::Down(0,-1);
+	template <class T>	const VectorBaseCartesian<T, 2> VectorBaseCartesian<T, 2>::Left(-1, 0);
+	template <class T>	const VectorBaseCartesian<T, 2> VectorBaseCartesian<T, 2>::Right(1, 0);
+
+
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Up(0, 1, 0);
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Down(0, -1, 0);
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Forward(0, 0, 1);
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Backward(0, 0, -1);
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Left(-1, 0, 0);
+	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Right(1, 0 ,0);
+
+	template <class T, size_t dim>
+	const VectorBase<T, dim> VectorBase<T, dim>::Zero(VectorBase<T, dim>::L_Zero);
+
+	template <class T, size_t dim>
+	const VectorBase<T, dim> VectorBase<T, dim>::Unit(VectorBase<T, dim>::L_One);
+}
+
 #endif
