@@ -58,17 +58,25 @@ namespace LMath
 		return (static_cast<T>(0) < val) - (val < static_cast<T>(0));
 	}
 
-	template <typename T, typename std::enable_if_t<std::is_integral_v<T>, int> = 0>
+	// Mathematical Modulo for unsigned integral numbers - just operator %
+	template <typename T, typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>, int> = 0>
+	constexpr T Modulo(T val, T mod)
+	{
+		return val % mod;
+	}
+
+	// Mathematical Modulo for signed integral numbers - [operator %] X 2
+	template <typename T, typename std::enable_if_t<std::is_integral_v<T> && std::is_signed_v<T>, int> = 0>
 	constexpr T Modulo(T val, T mod)
 	{
 		return (mod + (val % mod)) % mod;
 	}
+
 	template <typename T, typename std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
 	constexpr T Modulo(T val, T mod)
 	{
 		return fmod(mod + fmod(val, mod), mod);
 	}
-
 
 
 	template <typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
