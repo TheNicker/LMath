@@ -59,7 +59,7 @@ vec = Quat::FromEuler(Vec3D(25, 30, 0) * Constans::DegToRad) * vec;
 
 //----------------------------------------------------
 
-//vector supports cartesian notation up to four dimensions (x,y,z,w)
+//Vector supports optional cartesian notation up to four dimensions (x,y,z,w)
 Vec2D v2(1, 2);
 v2.X() == 1; // O.K
 //v2.Z() == 1; // compiler error, v2 has only X and Y components.
