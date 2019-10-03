@@ -39,17 +39,13 @@ namespace LMath
 
 	public:
 		using ElementType = T;
-
 		inline static ElementType L_Epsilon = std::numeric_limits<ElementType>::epsilon();
-		inline static constexpr ElementType L_Half = static_cast<ElementType>(0.5);
 		inline static constexpr ElementType L_Zero = static_cast<ElementType>(0);
+		inline static constexpr ElementType L_Half = static_cast<ElementType>(0.5);
 		inline static constexpr ElementType L_One = static_cast<ElementType>(1);
 		inline static constexpr ElementType L_Two = static_cast<ElementType>(2);
 		inline static constexpr ElementType L_Four = static_cast<ElementType>(4);
-
-
-		inline static ElementType UninitializedValue = (std::numeric_limits< ElementType>::min)();
-		static const ElementBase Uninitialized;
+		
 
 		T& at(size_t idx)
 		{
@@ -97,7 +93,10 @@ namespace LMath
 		
 		
 
-		ElementBase() : ElementBase(UninitializedValue)
+		ElementBase() 
+#if LMATH_ALWAYS_INITIALIZE_VARIABLES == 1
+			: ElementBase(L_Zero)
+#endif
 		{
 
 		}
@@ -108,16 +107,6 @@ namespace LMath
 				at(i) = initializationValue;
 		}
 
-	
-
-		bool IsInitialzied() const
-		{
-			for (size_t i = 0; i < dim; i++)
-				if (at(i) == UninitializedValue)
-					return false;
-
-			return true;
-		}
 
 		std::string ToString()
 		{
@@ -190,13 +179,5 @@ namespace LMath
 	private:
 		T mElements[dim];
 	};
-
-
-
-
-
-	
-	template <class T, size_t dim>
-	const ElementBase<T, dim> ElementBase<T, dim>::Uninitialized;
 }
 #endif

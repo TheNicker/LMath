@@ -181,6 +181,8 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		using VectorBaseCartesian<T, dim>::VectorBaseCartesian;
 		using BaseClass::at;
 		using ElementType = typename BaseClass::ElementType;
+		using BaseClass::L_One;
+		using BaseClass::L_Two;
 		
 		static const VectorBase Zero;
 		static const VectorBase Unit;

@@ -14,7 +14,6 @@ namespace LMath
 		using Vector3 = VectorBase<T, 3>;
 		using Vector4 = VectorBase<T, 4>;
 		using Base = Vector4;
-
 		using Vector4::Vector4;
 		using Vector4::at;
 		using Vector4::X;

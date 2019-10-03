@@ -43,7 +43,7 @@ namespace LMath
 
 		BoundsBase()
 		{
-			Reset();
+			
 		}
 
 		BoundsBase(const VectorType& min, const VectorType& max)
@@ -51,12 +51,7 @@ namespace LMath
 			minValue = min;
 			maxValue = max;
 		}
-
-		void Reset()
-		{
-			minValue = VectorType();
-			maxValue = VectorType();
-		}
+		
 
 		VectorType GetMin() const
 		{
@@ -190,12 +185,7 @@ namespace LMath
 
 			return inside;
 		}
-
-
-		bool IsInitialized() const
-		{
-			return minValue.IsInitialzied() && maxValue.IsInitialzied();
-		}
+		
 
 		ElementType GetSpan(size_t dim) const
 		{

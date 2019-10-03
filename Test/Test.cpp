@@ -24,11 +24,7 @@ TEST_CASE("BOUNDS", "[Bounds]")
 
 	SECTION("ensure boundsBase functionality") {
 		REQUIRE(bd.Dimensions == 3);
-		REQUIRE(bd1.IsInitialized() == false);
-		REQUIRE(bd.IsInitialized() == true);
 		REQUIRE(bd.Inflate(-2) == BoundingBox ( { 0.0,0.0,0.0 }, { 3, 3, 4 } ));
-		bd.Reset();
-		REQUIRE(bd.IsInitialized() == false);
 
 		REQUIRE(BoundingBox({ 1.1,2.6,-3.2 }, { 9.7, 15.44, 3.1 }).Round() == BoundingBox({ 1.0,3.0,-3.0 }, { 10.0, 15.0, 3.0 }));
 		
@@ -89,14 +85,9 @@ TEST_CASE("VECTOR", "[Vector]")
 	SECTION("vector construction")
 	{
 
-		Vec3D v;
-		REQUIRE(v.IsInitialzied() == false);
-
-		Vec3D u = Vec3D::Unit;
-		u = Vec3D::Uninitialized;
-
 
 		REQUIRE(Vec3D::Unit == Vec3D(1.0, 1.0, 1.0));
+
 		REQUIRE(Vec3D::Zero == Vec3D(0.0, 0.0, 0.0));
 
 		Vec4D::ElementType rawData[] = { 4,5,6,7 };

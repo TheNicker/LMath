@@ -34,11 +34,23 @@ SOFTWARE.
 
 
 
-//configuration
-//Ogre conversion from Vector[N] and to Vector[N]
-#define LMATH_VECTOR_OGRE_EXTENSIONS 0
-//Windows conversion from and to POINT and SIZE
-#define LMATH_VECTOR_WINDOWS_EXTENSIONS 0
+//Default configuration
 
-#define LMATH_VECTOR_CARTESIAN_COMPONENT LMATH_VECTOR_CARTESIAN_COMPONENT_GETTER
+//Ogre conversion from Vector[N] and to Vector[N]
+#ifndef LMATH_VECTOR_OGRE_EXTENSIONS
+	#define LMATH_VECTOR_OGRE_EXTENSIONS 0
+#endif
+//Windows conversion from and to POINT and SIZE
+#ifndef LMATH_VECTOR_WINDOWS_EXTENSIONS
+	#define LMATH_VECTOR_WINDOWS_EXTENSIONS 0
+#endif
+
+#ifndef LMATH_VECTOR_CARTESIAN_COMPONENT
+	#define LMATH_VECTOR_CARTESIAN_COMPONENT LMATH_VECTOR_CARTESIAN_COMPONENT_GETTER
+#endif
+
+#ifndef LMATH_ALWAYS_INITIALIZE_VARIABLES
+	#define LMATH_ALWAYS_INITIALIZE_VARIABLES 0
+#endif
+
 #endif

@@ -26,13 +26,25 @@ namespace LMath
 			_Assign<0, ROWS * COLS>(first, args...);
 		}
 
+		
 		MatrixBase() {}
-		MatrixBase(std::array<VectorType,ROWS>  vectors) :mVectors(vectors) {}
-		MatrixBase(VectorType  vectors[ROWS]) :mVectors(vectors) {}
-		MatrixBase( std::array<typename VectorType::ElementType, ROWS * COLS> elements)
+		
+		//// Fill the matrix with a value - disable for now
+		//MatrixBase(VectorType::ElementType initializationValue) 		
+		//{
+		//	for (size_t row = 0; row < ROWS; row++)
+		//		for (size_t col = 0; col < COLS; col++)
+		//			at(row, col) = initializationValue;
+		//}
+
+		// initialize using initializer list - disable for now 
+		/*MatrixBase( std::array<typename VectorType::ElementType, ROWS * COLS> elements)
 		{
-			std::memcpy(mVectors, elements.data(), sizeof(ElementType) * ROWS * COLS);
-		}
+
+			for (size_t row = 0; row < ROWS; row++)
+				for (size_t col = 0; col < COLS; col++)
+					at(row, col) = elements.at(row * COLS + col);
+		}*/
 
 #pragma endregion
 		//Operator *
@@ -44,7 +56,7 @@ namespace LMath
 			for (size_t col = 0; col < RHS_COLS ; col++)
 				for (size_t row = 0; row < ROWS ; row++)
 					for (size_t idx = 0; idx < ROWS ; idx++)
-						result.at(row).at(col) += this->at(row).at(idx) * rhs.at(idx).at(col);
+						result.at(row, col) += this->at(row, idx) * rhs.at(idx, col);
 
 			return result;
 		}
@@ -56,7 +68,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++) 
-					result.at(row).at(col) = at(row).at(col) * value;
+					result.at(row,col) = at(row, col) * value;
 
 			return result;
 		}
@@ -66,7 +78,7 @@ namespace LMath
 			VectorType  result = VectorType::Zero;
 			for (size_t row = 0; row < ROWS; row++)
 				for (size_t col = 0; col < COLS; col++)
-					result.at(row) += at(row).at(col) * value.at(col);
+					result.at(row) += at(row, col) * value.at(col);
 					
 
 			return result;
@@ -81,7 +93,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row).at(col) = at(row).at(col) + value;
+					result.at(row,col) = at(row,col) + value;
 
 			return result;
 		}
@@ -91,7 +103,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row).at(col) = at(row).at(col) + value.at(row).at(col);
+					result.at(row, col) = at(row, col) + value.at(row, col);
 
 			return result;
 		}
@@ -102,7 +114,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row).at(col) = at(row).at(col) - value;
+					result.at(row, col) = at(row, col) - value;
 
 			return result;
 		}
@@ -112,7 +124,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row).at(col) = at(row).at(col) - value.at(row).at(col);
+					result.at(row, col) = at(row, col) - value.at(row, col);
 
 			return result;
 		}
@@ -124,7 +136,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row).at(col) = at(row).at(col) / value;
+					result.at(row, col) = at(row, col) / value;
 
 			return result;
 		}
@@ -142,24 +154,24 @@ namespace LMath
 
 
 #pragma region accessors
-		VectorType& at(size_t idx)
+		ElementType& at(size_t idx)
 		{
-			return mVectors[idx];
+			return  mElements[idx];
 		}
 
-		const VectorType& at(size_t idx) const
+		const ElementType& at(size_t idx) const
 		{
-			return mVectors[idx];
+			return mElements[idx];
 		}
 
 		ElementType& at(size_t row,size_t col)
 		{
-			return mVectors[row].at(col);
+			return mMatrix[row][col];
 		}
 
 		const ElementType& at(size_t row, size_t col) const
 		{
-			return mVectors[row].at(col);
+			return mMatrix[row][col];
 		}
 #pragma endregion
 
@@ -175,7 +187,7 @@ namespace LMath
 
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(col).at(row) = this->at(row).at(col);
+					result.at(col, row) = this->at(row, col);
 
 			return result;
 		}
@@ -187,7 +199,7 @@ namespace LMath
 
 			MatrixBase result = MatrixBase::Zero;
 			for (size_t pos = 0; pos < ROWS; pos++)
-				result.at(pos).at(pos) = this->at(pos).at(pos) * value.at(pos).at(pos);
+				result.at(pos, pos) = this->at(pos, pos) * value.at(pos, pos);
 
 			return result;
 		}
@@ -207,7 +219,7 @@ namespace LMath
 				{
 					if (row == rowToRemove)
 						continue;
-					result.at(currentRow).at(currentCol) = at(row).at(col);
+					result.at(currentRow, currentCol) = at(row, col);
 					currentRow++;
 				}
 				currentCol++;
@@ -238,7 +250,7 @@ namespace LMath
 			MatrixBase minors;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					minors.at(row).at(col) = _ComputeDeterminant(SubMartix(row, col));
+					minors.at(row, col) = _ComputeDeterminant(SubMartix(row, col));
 
 			return minors / minors.Determinant();
 		}
@@ -263,7 +275,7 @@ namespace LMath
 
 			
 			QuaternionBase<T> q;
-			double trace =  at(0).at(0) + at(1).at(1) + at(2).at(2);
+			double trace =  at(0, 0) + at(1, 1) + at(2, 2);
 			if (trace > 0)
 			{
 				double s = 0.5 / std::sqrt(trace + 1);
@@ -276,15 +288,15 @@ namespace LMath
 			{
 				if (at(0,0)  > at(1,1) && at(0,0) > at(2,2))
 				{
-					double s = 2 * sqrt(1 + at(0).at(0) - at(1).at(1) - at(2).at(2));
+					double s = 2 * sqrt(1 + at(0, 0) - at(1, 1) - at(2, 2));
 					q.W() = Sub(2,1) / s;
 					q.X() = 0.25 * s;
 					q.Y() = Add(0,1) / s;
 					q.Z() = Add(0,2) / s;
 				}
-				else if (at(1).at(1) > at(2).at(2))
+				else if (at(1, 1) > at(2, 2))
 				{
-					double s = 2 * sqrt(1 + at(1).at(1) - at(0).at(0) - at(2).at(2));
+					double s = 2 * sqrt(1 + at(1, 1) - at(0, 0) - at(2, 2));
 					q.W() = Sub(0,2) / s;
 					q.X() = Add(0,1) / s;
 					q.Y() = 0.25 * s;
@@ -292,7 +304,7 @@ namespace LMath
 				}
 				else
 				{
-					double s = 2 * sqrt(1 + at(2).at(2) - at(0).at(0) - at(1).at(1));
+					double s = 2 * sqrt(1 + at(2, 2) - at(0, 0) - at(1, 1));
 					q.W() = Sub(1,0) / s;
 					q.X() = Add(0,2) / s;
 					q.Y() = Add(1,2) / s;
@@ -328,14 +340,14 @@ namespace LMath
 			double sqz = rotation.Z() * rotation.Z();
 
 			double invSqr = 1 / (sqx + sqy + sqz + sqw);
-			m.at(0).at(0) = (sqx - sqy - sqz + sqw) * invSqr;
-			m.at(1).at(1) = (-sqx + sqy - sqz + sqw) * invSqr;
-			m.at(2).at(2) = (-sqx - sqy + sqz + sqw) * invSqr;
+			m.at(0, 0) = (sqx - sqy - sqz + sqw) * invSqr;
+			m.at(1, 1) = (-sqx + sqy - sqz + sqw) * invSqr;
+			m.at(2, 2) = (-sqx - sqy + sqz + sqw) * invSqr;
 
 			double tmp1 = rotation.X() * rotation.Y();
 			double tmp2 = rotation.Z() * rotation.W();
-			m.at(1).at(0) = 2.0 * (tmp1 + tmp2) * invSqr;
-			m.at(0).at(1) = 2.0 * (tmp1 - tmp2) * invSqr;
+			m.at(1, 0) = 2.0 * (tmp1 + tmp2) * invSqr;
+			m.at(0, 1) = 2.0 * (tmp1 - tmp2) * invSqr;
 
 			tmp1 = rotation.X() * rotation.Z();
 			tmp2 = rotation.Y() * rotation.W();
@@ -372,8 +384,8 @@ namespace LMath
 		static MatrixBase  CreateZeroMatrix()
 		{
 			MatrixBase zero;
-			for (size_t i = 0; i < ROWS; i++)
-				zero.mVectors[i] = VectorType(VectorType::L_Zero);
+			for (size_t i = 0; i < ROWS * COLS; i++)
+				zero.mElements[i] = VectorType::L_Zero;
 		
 			return zero;
 		}
@@ -383,13 +395,14 @@ namespace LMath
 		{
 
 			static_assert(INDEX == NUM_ELEMENTS - 1, "Error, wrong number of arguments passed to VectorBase constructor");
-			at(INDEX / COLS).at(INDEX % COLS) = element;
+			
+			at(INDEX) = element;
 		}
 
 		template <size_t INDEX, size_t NUM_ELEMENTS ,typename ...ARGS>
 		void _Assign(ElementType element, ARGS... args)
 		{
-			at(INDEX / COLS).at(INDEX % COLS) = element;
+			at(INDEX) = element;
 			_Assign<INDEX + 1, NUM_ELEMENTS>(args...);
 		}
 
@@ -405,7 +418,7 @@ namespace LMath
 		template <size_t POS, size_t NUM_ELEMENTS , typename ...ARGS>
 		void _AssignScale(ElementType element, ARGS... args)
 		{
-			at(POS).at(POS) = element;
+			at(POS, POS) = element;
 			_Assign<POS + 1, NUM_ELEMENTS>(args...);
 		}
 
@@ -415,7 +428,7 @@ namespace LMath
 		{
 			size_t ARBITRARY_ROW = 0;
 			if constexpr (MATRIX_SIZE == 2)
-				return matrix.at(0).at(0) * matrix.at(1).at(1) - matrix.at(0).at(1) * matrix.at(1).at(0);
+				return matrix.at(0, 0) * matrix.at(1, 1) - matrix.at(0, 1) * matrix.at(1, 0);
 			else
 			{
 				ElementType determinant = 0;
@@ -423,7 +436,7 @@ namespace LMath
 				{
 
 					ElementType sign = col % 2 == 0 ? 1 : -1;
-					determinant += sign * matrix.at(ARBITRARY_ROW).at(col) * _ComputeDeterminant(matrix.SubMartix(ARBITRARY_ROW, col));
+					determinant += sign * matrix.at(ARBITRARY_ROW, col) * _ComputeDeterminant(matrix.SubMartix(ARBITRARY_ROW, col));
 				}
 
 				return determinant;
@@ -433,7 +446,12 @@ namespace LMath
 
 
 	private:
-		VectorType mVectors[ROWS];
+
+		union
+		{
+			ElementType mMatrix[ROWS][COLS];
+			ElementType mElements[ROWS * COLS];
+		};
 	};
 
 	template <typename T, size_t rows,size_t cols>
