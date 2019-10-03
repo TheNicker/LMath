@@ -298,9 +298,16 @@ namespace LMath
 		}
 
 
+		Vector4 operator*(const Vector4& rhs) const
+		{
+			//make sure W component in vector 4 is one.
+			
+			return Vector4(*this * ( static_cast<Vector3>(rhs) / rhs.at(3)) , L_One);
+		}
+
 		Vector3 operator*(const Vector3& rhs) const
 		{
-			Vector3 u = Vector3(at(0), at(1), at(2));
+			Vector3 u = static_cast<Vector3>(*this);
 			ElementType s = W();
 			return u * (u.Dot(rhs) * L_Two)
 				+ rhs * (s * s - u.NormSquared())
