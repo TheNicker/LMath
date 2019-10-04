@@ -33,21 +33,24 @@
 #include <LMath/Matrix.h>
 
 
- #define CHECK_MATRIX(a,b) (a == b)
+
+
 using Matrix3x3 = LMath::MatrixBase<double, 3, 3>;
 using Quaternion = LMath::QuaternionBase<double>;
 
-//#define CHECK_MATRIX(a, b) \
-//    CHECK(a.D00 == Approx(b.D00)); \
-//    CHECK(a.D01 == Approx(b.D01)); \
-//    CHECK(a.D02 == Approx(b.D02)); \
-//    CHECK(a.D10 == Approx(b.D10)); \
-//    CHECK(a.D11 == Approx(b.D11)); \
-//    CHECK(a.D12 == Approx(b.D12)); \
-//    CHECK(a.D20 == Approx(b.D20)); \
-//    CHECK(a.D21 == Approx(b.D21)); \
-//    CHECK(a.D22 == Approx(b.D22));
+#define CHECK_MATRIX(a, b) \
+    CHECK(a.at(0,0) == Approx(b.at(0,0))); \
+    CHECK(a.at(0,1) == Approx(b.at(0,1))); \
+    CHECK(a.at(0,2) == Approx(b.at(0,2))); \
+    CHECK(a.at(1,0) == Approx(b.at(1,0))); \
+    CHECK(a.at(1,1) == Approx(b.at(1,1))); \
+    CHECK(a.at(1,2) == Approx(b.at(1,2))); \
+    CHECK(a.at(2,0) == Approx(b.at(2,0))); \
+    CHECK(a.at(2,1) == Approx(b.at(2,1))); \
+    CHECK(a.at(2,2) == Approx(b.at(2,2)))
 
+
+#define CHECK_SCALE(a,s0,s1,s2) CHECK( (a.at(0,0) == s0 && a.at(1,1) == s1 && a.at(2,2) == s2))
 
 TEST_CASE("Matrix3x3 plus scalar", "[Matrix3x3]")
 {
@@ -273,14 +276,6 @@ TEST_CASE("Matrix3x3 transpose", "[Matrix3x3]")
     CHECK_MATRIX(m1, m2);
 }
 
-TEST_CASE("Matrix3x3 scale matrix", "[Matrix3x3]")
-{
-	Matrix3x3 m1 = Matrix3x3(2, -5, 3, 7, 1, -6, -9, 4, 8);
-	m1 = m1.Scale(Matrix3x3::CreateScaleMatrix(2, 3, 4));
-	CHECK_MATRIX(m1, Matrix3x3(4, -5, 3, 7, 3, -6, -9, 4, 32));
-	
-
-}
 
 TEST_CASE("Matrix3x3 scale", "[Matrix3x3]")
 {
@@ -300,10 +295,23 @@ TEST_CASE("Matrix3x3 scale", "[Matrix3x3]")
     // Case 3
     m1 = Matrix3x3(-27, 83, 32, -153, 53, 83, -64, 23, -46);
     m2 = Matrix3x3(5, -2, 6, 10, 4, -3, -6, 7, 11);
-    m3 = m1.Scale(m1);
+    m3 = m1.Scale(m2);
     m4 = Matrix3x3(-135, -166, 192, -1530, 212, -249, 384, 161, -506);
     CHECK_MATRIX(m3, m4);
+
+
+	//case 4 Scale matrix
+	m1.SetScale(4, 5, 6);
+	CHECK_SCALE(m1, 4, 5, 6);
+	m1.SetScale({ 7,8,9 });
+	CHECK_SCALE(m1, 7,8,9);
+	m1 = Matrix3x3::CreateScaleMatrix(10, 11, 12);
+	CHECK_SCALE(m1, 10, 11 ,12 );
+	m1 = Matrix3x3::CreateScaleMatrix({ 13, 14, 15 });
+	CHECK_SCALE(m1, 13, 14, 15);
 }
+
+
 
 TEST_CASE("Matrix3x3 determinate", "[Matrix3x3]")
 {
@@ -323,6 +331,11 @@ TEST_CASE("Matrix3x3 determinate", "[Matrix3x3]")
 
 TEST_CASE("Matrix3x3 inverse", "[Matrix3x3]")
 {
+	Matrix3x3 mat = Matrix3x3(0, 0, 1, 2, -1, 3, 1, 1, 4);
+	Matrix3x3 inverse = mat.Inverse();
+
+
+
     // Case 1
     Matrix3x3 m1 = Matrix3x3(2, -5, 3, 7, 1, -6, -9, 4, 8);
 	m1 = m1.Inverse();

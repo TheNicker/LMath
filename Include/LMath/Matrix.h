@@ -185,7 +185,7 @@ namespace LMath
 			return _ComputeDeterminant(*this);
 		}
 
-		MatrixBase<T, COLS, ROWS>  Transpose()
+		MatrixBase<T, COLS, ROWS>  Transpose() const
 		{
 			MatrixBase<T, COLS, ROWS> result;
 
@@ -201,9 +201,11 @@ namespace LMath
 		{
 			static_assert( IsSquareMatrix(), "Scale applies only to square matrices.");
 
-			MatrixBase result = MatrixBase::Zero;
-			for (size_t pos = 0; pos < ROWS; pos++)
-				result.at(pos, pos) = this->at(pos, pos) * value.at(pos, pos);
+			MatrixBase result = *this;
+
+			for (size_t row = 0; row < ROWS; row++)
+				for (size_t col = 0; col < COLS; col++)
+					result.at(row, col) *= value.at(row, col);
 
 			return result;
 		}
@@ -247,16 +249,23 @@ namespace LMath
 			}
 		}
 
-		MatrixBase Inverse() const
+
+		MatrixBase Adjoint() const
 		{
 			static_assert(IsSquareMatrix(), "Scale applies only to square matrices.");
 
 			MatrixBase minors;
-			for (size_t col = 0; col < COLS; col++)
-				for (size_t row = 0; row < ROWS; row++)
-					minors.at(row, col) = _ComputeDeterminant(SubMartix(row, col));
 
-			return minors / minors.Determinant();
+			for (size_t row = 0; row < ROWS; row++)
+				for (size_t col = 0; col < COLS; col++)
+					minors.at(row, col) = GetMinorSign(row, col) * _ComputeDeterminant(SubMartix(row, col));
+
+			return minors;
+		}
+
+		MatrixBase Inverse() const
+		{
+			return  Adjoint().Transpose() / Determinant();
 		}
 
 		
@@ -318,19 +327,32 @@ namespace LMath
 			return q;
 		}
 
-		//public class methods
+
+
+		void SetScale(const VectorType& scaleVec)
+		{
+			for (size_t pos = 0; pos < ROWS; ++pos)
+				at(pos, pos) = scaleVec.at(pos);
+		}
+
+		template <typename... Args>
+		void  SetScale(ElementType first, Args... args)
+		{
+			_AssignScale<0, ROWS>(first, args...);
+		}
+
 		static MatrixBase  CreateScaleMatrix(const VectorType& scaleVec)
 		{
-			for (size_t pos = 0; pos < ROWS; pos++)
-				at(pos, pos) = scaleVec.at(pos);
-			
+			MatrixBase scaleMatrix = MatrixBase::Zero;
+			scaleMatrix.SetScale(scaleVec);
+			return scaleMatrix;
 		}
 
 		template <typename... Args>
 		static MatrixBase  CreateScaleMatrix(ElementType first, Args... args)
 		{
 			MatrixBase scaleMatrix = MatrixBase::Zero;
-			scaleMatrix._AssignScale<0, ROWS> (first, args...);
+			scaleMatrix.SetScale(first, args...);
 			return scaleMatrix;
 		}
 
@@ -371,6 +393,10 @@ namespace LMath
 
 	private: //Private helper methods
 		
+		static ElementType GetMinorSign(size_t row, size_t col)
+		{
+			return ((row % 2) == 0 ? 1 : -1) * ((col % 2) == 0 ? 1 : -1);
+		}
 		
 
 		static MatrixBase  CreateIdentityMatrix()
@@ -416,14 +442,14 @@ namespace LMath
 		{
 
 			static_assert(POS == NUM_ELEMENTS -1, "Error, wrong number of arguments passed to VectorBase constructor");
-			at(POS).at(POS) = element;
+			at(POS, POS) = element;
 		}
 
 		template <size_t POS, size_t NUM_ELEMENTS , typename ...ARGS>
 		void _AssignScale(ElementType element, ARGS... args)
 		{
 			at(POS, POS) = element;
-			_Assign<POS + 1, NUM_ELEMENTS>(args...);
+			_AssignScale<POS + 1, NUM_ELEMENTS>(args...);
 		}
 
 
@@ -437,11 +463,7 @@ namespace LMath
 			{
 				ElementType determinant = 0;
 				for (size_t col = 0; col < MATRIX_SIZE; col++)
-				{
-
-					ElementType sign = col % 2 == 0 ? 1 : -1;
-					determinant += sign * matrix.at(ARBITRARY_ROW, col) * _ComputeDeterminant(matrix.SubMartix(ARBITRARY_ROW, col));
-				}
+					determinant += GetMinorSign(ARBITRARY_ROW,col) * matrix.at(ARBITRARY_ROW, col) * _ComputeDeterminant(matrix.SubMartix(ARBITRARY_ROW, col));
 
 				return determinant;
 			}
