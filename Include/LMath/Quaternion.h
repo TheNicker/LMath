@@ -188,8 +188,8 @@ namespace LMath
 
 		QuaternionBase SlerpClamped(QuaternionBase b, ElementType t)
 		{
-			if (t < L_Zero) return Normalized(a);
-			else if (t > L_One) return Normalized(b);
+			if (t < L_Zero) return this->Normalized();
+			else if (t > L_One) return b.Normalized();
 			return Slerp(b, t);
 		}
 

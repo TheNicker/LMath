@@ -30,15 +30,15 @@ SOFTWARE.
 namespace LMath
 {
 
-	template <class T, size_t dim>
+	template <class T, size_t DIM>
 	class BoundsBase
 	{
 	public:
 		enum class IntersectState { Disjoint, Touch, Overlap };
-		using VectorType = VectorBase<T, dim>;
-		using ElementType = typename VectorBase<T, dim>::ElementType;
+		using VectorType = VectorBase<T, DIM>;
+		using ElementType = typename VectorBase<T, DIM>::ElementType;
 		static const BoundsBase Uninitialized;
-		static const size_t Dimensions = dim;
+		inline static const size_t Dimensions = DIM;
 
 
 		BoundsBase()
@@ -79,7 +79,7 @@ namespace LMath
 		{
 			bool intersects = true;
 			size_t i = 0;
-			while (intersects == true && i < dim)
+			while (intersects == true && i < DIM)
 			{
 				intersects &= maxValue.at(i) >= rhs.minValue.at(i) && minValue.at(i) <= rhs.maxValue.at(i);
 				i++;
@@ -112,7 +112,7 @@ namespace LMath
 		{
 			IntersectState result = IntersectState::Overlap;
 			size_t i = 0;
-			while (result != IntersectState::Disjoint && i < dim)
+			while (result != IntersectState::Disjoint && i < DIM)
 			{
 				const ElementType sign = Sign((maxValue.at(i) - rhs.minValue.at(i)) * (rhs.maxValue.at(i) - minValue.at(i)));
 				computeIntersection(sign, result);
@@ -127,7 +127,7 @@ namespace LMath
 		{
 			IntersectState result = IntersectState::Overlap;
 			size_t i = 0;
-			while (result != IntersectState::Disjoint && i < dim)
+			while (result != IntersectState::Disjoint && i < DIM)
 			{
 				const ElementType sign = Sign((maxValue.at(i) - rhs.at(i)) * (rhs.at(i) - minValue.at(i)));
 				computeIntersection(sign, result);
@@ -142,7 +142,7 @@ namespace LMath
 		{
 			bool intersects = true;
 			size_t i = 0;
-			while (intersects == true && i < dim)
+			while (intersects == true && i < DIM)
 			{
 				intersects &= maxValue.at(i) > rhs.minValue.at(i) && minValue.at(i) < rhs.maxValue.at(i);
 				i++;
@@ -164,7 +164,7 @@ namespace LMath
 		{
 			bool inside = true;
 			size_t i = 0;
-			while (inside == true && i < dim)
+			while (inside == true && i < DIM)
 			{
 				inside &= minValue.at(i) < vec.at(i) && maxValue.at(i) > vec.at(i);
 				i++;
@@ -177,7 +177,7 @@ namespace LMath
 		{
 			bool inside = true;
 			size_t i = 0;
-			while (inside == true && i < dim)
+			while (inside == true && i < DIM)
 			{
 				inside &= minValue.at(i) <= vec.at(i) && maxValue.at(i) >= vec.at(i);
 				i++;
@@ -200,7 +200,7 @@ namespace LMath
 		//check that min value is equals or larger than max value.
 		bool IsValid() const
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				if (minValue.at(i) > maxValue.at(i))
 					return false;
 
@@ -222,7 +222,7 @@ namespace LMath
 		VectorType maxValue;
 	};
 
-	template <class T, size_t dim>
-	const BoundsBase<T, dim> BoundsBase<T, dim>::Uninitialized;
+	template <class T, size_t DIM>
+	const BoundsBase<T, DIM> BoundsBase<T, DIM>::Uninitialized;
 }
 #endif

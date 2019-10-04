@@ -144,7 +144,11 @@ namespace LMath
 
 		bool operator ==(const MatrixBase& value) const
 		{
-			return std::memcmp(this, &value, sizeof(value)) == 0;
+			for (size_t i = 0; i < ROWS * COLS; i++)
+				if (mElements[i] != value.mElements[i])
+					return false;
+
+			return true;
 		}
 
 		bool operator !=(const MatrixBase& value) const
@@ -317,7 +321,7 @@ namespace LMath
 		//public class methods
 		static MatrixBase  CreateScaleMatrix(const VectorType& scaleVec)
 		{
-			for (size_t pos = 0; i < ROWS; pos++)
+			for (size_t pos = 0; pos < ROWS; pos++)
 				at(pos).at(pos) = scaleVec.at(pos);
 			
 		}

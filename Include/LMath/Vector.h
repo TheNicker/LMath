@@ -26,6 +26,7 @@ SOFTWARE.
 
 #include "LMathConfig.h"
 #include "Element.h"
+#include "Math.h"
 
 #if LMATH_VECTOR_WINDOWS_EXTENSIONS == 1
 	#include <Windows.h>
@@ -39,10 +40,10 @@ SOFTWARE.
 
 namespace LMath
 {
-	template <typename T, size_t dim >
-	class VectorBaseCartesian : public ElementBase<T, dim>
+	template <typename T, size_t DIM >
+	class VectorBaseCartesian : public ElementBase<T, DIM>
 	{
-		using BaseClass = ElementBase<T, dim>;
+		using BaseClass = ElementBase<T, DIM>;
 		using BaseClass::BaseClass;
 	};
 
@@ -173,12 +174,12 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 	};
 
 
-	template <typename T, size_t dim>
-	class VectorBase : public VectorBaseCartesian<T, dim>
+	template <typename T, size_t DIM>
+	class VectorBase : public VectorBaseCartesian<T, DIM>
 	{
 	public:
-		using BaseClass = VectorBaseCartesian<T, dim>;
-		using VectorBaseCartesian<T, dim>::VectorBaseCartesian;
+		using BaseClass = VectorBaseCartesian<T, DIM>;
+		using VectorBaseCartesian<T, DIM>::VectorBaseCartesian;
 		using BaseClass::at;
 		using ElementType = typename BaseClass::ElementType;
 		using BaseClass::L_One;
@@ -195,7 +196,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		bool operator ==(const VectorBase& rhs) const
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				if (at(i) != rhs.at(i))
 					return false;
 
@@ -210,7 +211,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		ElementType Dot(const VectorBase& rhs) const
 		{
 			ElementType ret = 0;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret += at(i) * rhs.at(i);
 			return ret;
 		}
@@ -219,7 +220,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBase ret;
 
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret.at(i) = std::round(at(i));
 
 			return ret;
@@ -255,7 +256,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBase vec;
 
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = -at(i);
 			return vec;
 		}
@@ -265,7 +266,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBase vec;
 
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) - value;
 			return vec;
 		}
@@ -274,7 +275,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBase ret;
 
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret.at(i) = value - vec.at(i);
 			return ret;
 		}
@@ -282,14 +283,14 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator -(const VectorBase& value)  const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) - value.at(i);
 			return vec;
 		}
 
 		VectorBase& operator -=(ElementType value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) - value;
 
 			return *this;
@@ -297,7 +298,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator -=(const VectorBase& value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) - value.at(i);
 
 			return *this;
@@ -308,7 +309,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator +(ElementType value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) + value;
 
 			return vec;
@@ -322,7 +323,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator +(const VectorBase& value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) + value.at(i);
 
 			return vec;
@@ -331,7 +332,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator +=(ElementType value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) + value;
 
 			return *this;
@@ -339,7 +340,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator +=(const VectorBase& value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) + value.at(i);
 
 			return *this;
@@ -356,7 +357,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator *(ElementType value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) * value;
 
 			return vec;
@@ -364,7 +365,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator *=(ElementType value) 
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) * value;
 
 			return *this;
@@ -372,7 +373,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator *=(const VectorBase& value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) * value.at(i);
 
 			return *this;
@@ -382,7 +383,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator *(const VectorBase& value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) * value.at(i);
 
 			return vec;
@@ -393,7 +394,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		friend VectorBase operator/(ElementType value, const VectorBase& vec)
 		{
 			VectorBase ret;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret.at(i) = value / vec.at(i);
 
 			return ret;
@@ -401,7 +402,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator /=(const VectorBase& value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) / value.at(i);
 
 			return *this;
@@ -409,7 +410,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase& operator /=(const ElementType value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) / value;
 
 			return *this;
@@ -419,7 +420,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator /(ElementType value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) / value;
 
 			return vec;
@@ -428,7 +429,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator /(const VectorBase& value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) / value.at(i);
 
 			return vec;
@@ -438,7 +439,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator %(const VectorBase& value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) & value.at(i);
 			return vec;
 		}
@@ -446,29 +447,29 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase operator %(ElementType value) const
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				vec.at(i) = at(i) & value;
 			return vec;
 		}
 
 		friend VectorBase operator %(ElementType value, const VectorBase& vec)
 		{
-			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
-				vec.at(i) = value % at(i);
-			return vec;
+			VectorBase ret;
+			for (size_t i = 0; i < DIM; i++)
+				ret.at(i) = value % at(i);
+			return ret;
 		}
 
 		VectorBase& operator %=(ElementType value) 
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) &= value;
 			return this;
 		}
 
 		VectorBase& operator %=(const VectorBase& value)
 		{
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = at(i) &= value.at(i);
 			return this;
 		}
@@ -480,7 +481,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase Modulo(const VectorBase& value)
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = LMath::Modulo(at(i), value.at(i));
 			
 			return vec;
@@ -489,7 +490,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase Modulo(ElementType value)
 		{
 			VectorBase vec;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				at(i) = LMath::Modulo(at(i), value);
 			return vec;
 		}
@@ -499,7 +500,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase Max(const VectorBase& rhs) const
 		{
 			VectorBase ret;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret.at(i) = (std::max)(at(i), rhs.at(i));
 
 			return ret;
@@ -508,7 +509,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		VectorBase Min(const VectorBase& rhs) const
 		{
 			VectorBase ret;
-			for (size_t i = 0; i < dim; i++)
+			for (size_t i = 0; i < DIM; i++)
 				ret.at(i) = (std::min)(at(i), rhs.at(i));
 
 			return ret;
@@ -554,7 +555,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase Cross(const VectorBase& rhs) const
 		{
-			static_assert(dim == 3, "not a vector with 3 dimensions");
+			static_assert(DIM == 3, "not a vector with 3 DIMensions");
 			
 			return
 			{
@@ -566,7 +567,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase Orthogonal() const
 		{
-			static_assert(dim == 3, "not a vector with 3 dimensions");
+			static_assert(DIM == 3, "not a vector with 3 DIMensions");
 			return at(2) < at(0) ? VectorBase(at(1), -at(0), 0) : VectorBase(0, -at(2), at(1));
 		}
 
@@ -574,7 +575,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 
 		VectorBase Reflect(const VectorBase& normal) const
 		{
-			static_assert(dim == 3 || dim == 2, "not a vector with two or three dimensions");
+			static_assert(DIM == 3 || DIM == 2, "not a vector with two or three DIMensions");
 			return *this -  L_Two * Dot(normal)* normal;
 		}
 
@@ -586,26 +587,26 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 #if LMATH_VECTOR_WINDOWS_EXTENSIONS == 1
 		operator POINT() const
 		{
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
 			return { at(0), at(1) };
 		}
 
 		VectorBase(const POINT& p)
 		{
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
 			at(0) = p.x;
 			at(1) = p.y;
 		}
 		
 		operator SIZE() const
 		{
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
 			return { at(0), at(1) };
 		}
 		
 		VectorBase(const SIZE& p)
 		{
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
 			at(0) = p.cx;
 			at(1) = p.cy;
 		}
@@ -617,37 +618,37 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 #if LMATH_VECTOR_OGRE_EXTENSIONS == 1
         VectorBase(const Ogre::Vector2 & v) 
         {
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
             return (v.x, v.y);
         }
 
         operator Ogre::Vector2() const
         {
-            static_assert(dim == 2, "not a vector with 2 dimensions");
+            static_assert(DIM == 2, "not a vector with 2 DIMensions");
             return { at(0) ,at(1) };
         }
 
         VectorBase(const Ogre::Vector3& v)
         {
-            static_assert(dim == 3, "not a vector with 3 dimensions");
+            static_assert(DIM == 3, "not a vector with 3 DIMensions");
             return (v.x, v.y, v.z);
         }
 
         operator Ogre::Vector3() const
         {
-            static_assert(dim == 3, "not a vector with 3 dimensions");
+            static_assert(DIM == 3, "not a vector with 3 DIMensions");
             return { at(0) ,at(1) , at(2) };
         }
 
         VectorBase(const Ogre::Vector4& v)
         {
-            static_assert(dim == 4, "not a vector with 4 dimensions");
+            static_assert(DIM == 4, "not a vector with 4 DIMensions");
             return (v.x, v.y,v.z,v.w);
         }
 
         operator Ogre::Vector4() const
         {
-            static_assert(dim == 4, "not a vector with 4 dimensions");
+            static_assert(DIM == 4, "not a vector with 4 DIMensions");
             return { at(0) ,at(1), at(2), at(3) };
         }
 #endif
@@ -668,11 +669,11 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Left(-1, 0, 0);
 	template <class T>	const VectorBaseCartesian<T, 3> VectorBaseCartesian<T, 3>::Right(1, 0 ,0);
 
-	template <class T, size_t dim>
-	const VectorBase<T, dim> VectorBase<T, dim>::Zero(VectorBase<T, dim>::L_Zero);
+	template <class T, size_t DIM>
+	const VectorBase<T, DIM> VectorBase<T, DIM>::Zero(VectorBase<T, DIM>::L_Zero);
 
-	template <class T, size_t dim>
-	const VectorBase<T, dim> VectorBase<T, dim>::Unit(VectorBase<T, dim>::L_One);
+	template <class T, size_t DIM>
+	const VectorBase<T, DIM> VectorBase<T, DIM>::Unit(VectorBase<T, DIM>::L_One);
 }
 
 #endif
