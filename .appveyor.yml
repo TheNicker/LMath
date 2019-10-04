@@ -1,56 +1,82 @@
-image:
-  #- Ubuntu
-  #- Visual Studio 2015
-  - Visual Studio 2017
-  #- Visual Studio 2019
-
-clone_folder: c:\lmath
+platform:
+  #- x86
+  - x64
 
 configuration: Release
 
 environment:
   matrix:
-    #- cmake_arch: x86
-    - cmake_arch: x64
+     - job_name: Visual Studio 2017
+       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+     #- job_name: Visual Studio 2019
+     #  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+     - job_name: Ubuntu 18 and GCC
+       APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+     - job_name: Ubuntu 18 and Clang
+       APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1804
+
+            
 
 for:
--
-  matrix:
-    only:
-      - image: Ubuntu
-  
-  clone_folder: ~/lmath
-  build_script:
-    - mkdir build; cd build
-    - cmake -DCMAKE_BUILD_TYPE=Release $extra_cmake_flags ..
-    - make -j2
- 
-# skip unsupported combinations
-init:
-  - cmd: set arch=
-  - cmd: if "%cmake_arch%"=="x64" ( set arch= Win64)
-  - cmd: echo %arch%
-  - cmd: echo %APPVEYOR_BUILD_WORKER_IMAGE%
-  - cmd: if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017%arch%" )
-  - cmd: if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" ( set generator="Visual Studio 16 2019%arch%" )
-  - cmd: echo %generator%
-  - sh: if [ "$cmake_arch" = "x86" ]; then export extra_cmake_flags=-DCMAKE_CXX_FLAGS=-m32; sudo apt-get install -y g++-multilib; fi;
+# Linux Clang
+  - matrix:
+      only:
+        - job_name: Ubuntu 18 and Clang
+    environment:
+      CC: clang
+      CXX: clang++
+    clone_folder: ~/lmath
+    init:
+      - sh: if [ "$cmake_arch" = "x86" ]; then export extra_cmake_flags=-DCMAKE_CXX_FLAGS=-m32; sudo apt-get install -y g++-multilib; fi;	      
 
-before_build:
-- cmd: |-
-    c:
-    cd c:\lmath
-    mkdir build
-    cd build
-    cmake --version
-    cmake .. -G %generator%
-build:
-  project: c:\lmath\build\lmath.sln
-  verbosity: minimal
-  parallel: true
+    build_script:	
+      - mkdir build; cd build	
+      - cmake -DCMAKE_BUILD_TYPE=Release DCMAKE_CXX_STANDARD=17 $extra_cmake_flags ..	
+      - make -j2	
+ # Linux GCC
+  - matrix:
+      only:
+        - job_name: Ubuntu 18 and GCC
+    environment:
+      GCC_VERSION: 9
+    clone_folder: ~/lmath
+    init:
+      - sh: if [ "$cmake_arch" = "x86" ]; then export extra_cmake_flags=-DCMAKE_CXX_FLAGS=-m32; sudo apt-get install -y g++-multilib; fi;	      
 
-test:
-  # only assemblies to test
-  assemblies:
-    only:
-      - build\Test\Release\Test.exe
+    build_script:	
+      - mkdir build; cd build	
+      - cmake -DCMAKE_BUILD_TYPE=Release DCMAKE_CXX_STANDARD=17 $extra_cmake_flags ..	
+      - make -j2	
+
+# Visual studio
+  - matrix:
+      only:
+        - job_name: Visual Studio 2017
+        - job_name: Visual Studio 2019
+    clone_folder: c:\lmath
+    init:
+      - cmd: |- 
+          set arch=
+          echo Platform is %PLATFORM%
+          if "%PLATFORM%"=="x64" ( set arch= Win64)
+          echo %arch%
+          echo %APPVEYOR_BUILD_WORKER_IMAGE%
+          if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2017" ( set generator="Visual Studio 15 2017%arch%" )
+          if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" ( set generator="Visual Studio 16 2019" )
+          if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" ( set cmake_architecture="-A %PLATFORM%" )
+           
+          echo %generator%
+
+    before_build:
+      - cmd: |-
+          c:
+          cd c:\lmath
+          mkdir build
+          cd build
+          cmake --version
+          cmake .. -G %generator% %cmake_architecture%
+
+    build:
+      project: c:\lmath\build\lmath.sln
+      verbosity: minimal
+      parallel: true
