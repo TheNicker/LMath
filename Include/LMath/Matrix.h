@@ -322,7 +322,7 @@ namespace LMath
 		static MatrixBase  CreateScaleMatrix(const VectorType& scaleVec)
 		{
 			for (size_t pos = 0; pos < ROWS; pos++)
-				at(pos).at(pos) = scaleVec.at(pos);
+				at(pos, pos) = scaleVec.at(pos);
 			
 		}
 
