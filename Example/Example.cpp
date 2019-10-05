@@ -30,12 +30,12 @@ int main()
 
 	//vector supports cartesian notation up to four dimensions (x,y,z,w)
 	Vec2D v2(1, 2);
-	v2.X() == 1; // O.K
+	bool equalsOne = v2.X() == 1; // O.K
 	//v2.Z() == 1; // compiler error, v2 has only X and Y components.
 
 
 	//----------------------------------------------------
-	//Any vector to any vector implicit casting.
+	//Any vector to any vector via explicit casting.
 	using Vec5I = VectorBase<int, 5>; //5 dimenstion integer vector.
 
 	//Conversion from 3D double vector to 5D integer vector integer to 3

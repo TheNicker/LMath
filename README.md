@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a7f043160b7b4f94b9ec87f83c1608b2)](https://www.codacy.com/manual/TheNicker/LMath?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TheNicker/LMath&amp;utm_campaign=Badge_Grade)
 [![Build status](https://ci.appveyor.com/api/projects/status/yxypaqf9is7w1iwy?svg=true)](https://ci.appveyor.com/project/LiorL/lmath)
+[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/TheNicker/LMath.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/TheNicker/LMath/context:cpp)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/TheNicker/LMath.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/TheNicker/LMath/alerts/)
 ![GitHub](https://img.shields.io/github/license/Thenicker/lmath)
 
 **LMath** is a modern and lightweight cross-platform header only **C++ 17** math and geometry library focusing on performance, safety and ease of use.
@@ -61,12 +63,12 @@ vec = Quat::FromEuler(Vec3D(25, 30, 0) * Constans::DegToRad) * vec;
 
 //Vector supports optional cartesian notation up to four dimensions (x,y,z,w)
 Vec2D v2(1, 2);
-v2.X() == 1; // O.K
+bool equalsOne = v2.X() == 1; // O.K
 //v2.Z() == 1; // compiler error, v2 has only X and Y components.
 
 
 //----------------------------------------------------
-//Any vector to any vector implicit casting.
+//Any vector to any vector via explicit casting.
 using Vec5I = VectorBase<int, 5>; //5 dimenstion integer vector.
 
 //Conversion from 3D double vector to 5D integer vector integer to 3
