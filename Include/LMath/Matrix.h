@@ -14,6 +14,10 @@ namespace LMath
 		static bool constexpr  IsSquareMatrix() {return ROWS == COLS;}
 		using VectorType =  VectorBase<T, COLS>;
 		using ElementType = typename VectorType::ElementType;
+		using Base = MatrixBase<T, ROWS, COLS>;
+		inline static constexpr size_t Rows = ROWS;
+		inline static constexpr size_t Cols = COLS;
+
 
 		static const MatrixBase Zero;
 		static const MatrixBase Identity;
@@ -47,6 +51,24 @@ namespace LMath
 		}*/
 
 #pragma endregion
+
+		// Convert matrix to any matrix
+		template <typename U ,size_t RHS_ROWS, size_t RHS_COLS>
+		explicit MatrixBase (const MatrixBase<U, RHS_ROWS, RHS_COLS>& rhs)
+		{
+
+			const size_t rowsToConvert = (std::min)(ROWS, RHS_ROWS);
+			const size_t colsToConvert = (std::min)(COLS, RHS_COLS);
+			*this = Zero;
+
+			for (size_t row = 0; row < rowsToConvert; row++)
+				for (size_t col = 0; col < colsToConvert; col++)
+					at(row,col) = rhs.at(row,col);
+		}
+
+		ElementType* data() { return &mElements[0];}
+		const ElementType* data() const { return &mElements[0];}
+
 		//Operator *
 		template <size_t RHS_ROWS, size_t RHS_COLS>
 		MatrixBase <ElementType, ROWS, RHS_COLS> operator*(const MatrixBase<ElementType, RHS_ROWS, RHS_COLS>& rhs)
@@ -118,6 +140,17 @@ namespace LMath
 
 			return result;
 		}
+
+		MatrixBase operator-()  const
+		{
+			MatrixBase result;
+			for (size_t col = 0; col < COLS; col++)
+				for (size_t row = 0; row < ROWS; row++)
+					result.at(row, col) = -this->at(row, col);
+
+			return result;
+		}
+
 
 		MatrixBase operator-(MatrixBase value) const
 		{
@@ -406,7 +439,7 @@ namespace LMath
 			static_assert(IsSquareMatrix(), "Error, identity matrix applie only to square matrices");
 			
 			for (size_t row = 0; row < ROWS; row++)
-				identity.at(row).at(row) = VectorType::L_One;
+				identity.at(row, row) = VectorType::L_One;
 			return identity;
 
 		}
@@ -468,8 +501,6 @@ namespace LMath
 				return determinant;
 			}
 		}
-
-
 
 	private:
 

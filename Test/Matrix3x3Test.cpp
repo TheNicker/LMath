@@ -39,15 +39,10 @@ using Matrix3x3 = LMath::MatrixBase<double, 3, 3>;
 using Quaternion = LMath::QuaternionBase<double>;
 
 #define CHECK_MATRIX(a, b) \
-    CHECK(a.at(0,0) == Approx(b.at(0,0))); \
-    CHECK(a.at(0,1) == Approx(b.at(0,1))); \
-    CHECK(a.at(0,2) == Approx(b.at(0,2))); \
-    CHECK(a.at(1,0) == Approx(b.at(1,0))); \
-    CHECK(a.at(1,1) == Approx(b.at(1,1))); \
-    CHECK(a.at(1,2) == Approx(b.at(1,2))); \
-    CHECK(a.at(2,0) == Approx(b.at(2,0))); \
-    CHECK(a.at(2,1) == Approx(b.at(2,1))); \
-    CHECK(a.at(2,2) == Approx(b.at(2,2)))
+	 for (size_t i = 0 ; i < decltype(a)::Rows * decltype(a)::Cols ; i++) \
+	{\
+    CHECK(a.at(i) == Approx(b.at(i))); \
+	 };
 
 
 #define CHECK_SCALE(a,s0,s1,s2) CHECK( (a.at(0,0) == s0 && a.at(1,1) == s1 && a.at(2,2) == s2))
@@ -331,10 +326,6 @@ TEST_CASE("Matrix3x3 determinate", "[Matrix3x3]")
 
 TEST_CASE("Matrix3x3 inverse", "[Matrix3x3]")
 {
-	Matrix3x3 mat = Matrix3x3(0, 0, 1, 2, -1, 3, 1, 1, 4);
-	Matrix3x3 inverse = mat.Inverse();
-
-
 
     // Case 1
     Matrix3x3 m1 = Matrix3x3(2, -5, 3, 7, 1, -6, -9, 4, 8);
