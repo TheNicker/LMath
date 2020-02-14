@@ -39,12 +39,14 @@ namespace LMath
 
 	public:
 		using ElementType = T;
+		inline static constexpr size_t DIM = dim;
 		inline static ElementType L_Epsilon = std::numeric_limits<ElementType>::epsilon();
 		inline static constexpr ElementType L_Zero = static_cast<ElementType>(0);
 		inline static constexpr ElementType L_Half = static_cast<ElementType>(0.5);
 		inline static constexpr ElementType L_One = static_cast<ElementType>(1);
 		inline static constexpr ElementType L_Two = static_cast<ElementType>(2);
 		inline static constexpr ElementType L_Four = static_cast<ElementType>(4);
+
 		
 
 		T& at(size_t idx)
