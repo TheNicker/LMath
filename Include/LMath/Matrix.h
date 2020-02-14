@@ -420,6 +420,78 @@ namespace LMath
 			return m;
 		}
 		
+		static MatrixBase<T, 4, 4>  CreateViewMatrix(const VectorBase<T, 3>& position, const QuaternionBase<T>& orientation)
+		{
+			using Matrix4 = MatrixBase<T, 4, 4>;
+			using Matrix3 = MatrixBase<T, 3, 3>;
+			Matrix4 viewMatrix;
+
+			// View matrix is:
+			//
+			//  [ Lx  Uy  Dz  Tx  ]
+			//  [ Lx  Uy  Dz  Ty  ]
+			//  [ Lx  Uy  Dz  Tz  ]
+			//  [ 0   0   0   1   ]
+			//
+			// Where T = -(Transposed(Rot) * Pos)
+
+			// This is most efficiently done using 3x3 Matrices
+			Matrix3 rotationMatrix = Matrix3::FromQuaternion(orientation);
+			Matrix3 rotationMatrixTransposed = rotationMatrix.Transpose();
+			
+			VectorBase<T, 3> translation = -rotationMatrixTransposed * position;
+
+			// Make final matrix
+			viewMatrix = static_cast<Matrix4>(rotationMatrixTransposed);// fills upper 3x3
+
+			viewMatrix.at(0, 3) = translation.at(0);
+			viewMatrix.at(1, 3) = translation.at(1);
+			viewMatrix.at(2, 3) = translation.at(2);
+			viewMatrix.at(3, 3) = 1.0;
+
+
+			return viewMatrix;
+
+		}
+
+		static MatrixBase<T, 4, 4>  CreateProjectionMatrix(
+			ElementType left
+			, ElementType bottom
+			, ElementType top
+			, ElementType right
+			, ElementType n
+			, ElementType f
+			, ElementType z_clip
+			, bool leftHanded
+		)
+		{
+
+			MatrixBase<T, 4, 4> projectionMatrix = MatrixBase<T, 4, 4>::Identity;
+
+			auto inv_width = static_cast<ElementType>(1) / (right - left);
+			auto inv_height = static_cast<ElementType>(1) / (top - bottom);
+			auto inv_depth = static_cast<ElementType>(1) / (f - n);
+			auto near2 = static_cast<ElementType>(2) * n;
+			auto s = leftHanded == true ? static_cast<ElementType>(1) : static_cast<ElementType>(-1);
+
+			if (z_clip == -1) {
+				projectionMatrix.at(2, 2) = s * (f + n) * inv_depth;
+				projectionMatrix.at(3, 2) = static_cast<ElementType>(-2) * f * n * inv_depth;
+			}
+			else { // z_clip == z_clip_zero
+				projectionMatrix.at(2, 2) = s * f * inv_depth;
+				projectionMatrix.at(3, 2) = -s * n * projectionMatrix.at(2, 2);
+			}
+
+			projectionMatrix.at(0, 0) = near2 * inv_width;
+			projectionMatrix.at(1, 1) = near2 * inv_height;
+			projectionMatrix.at(2, 0) = -s * (right + left) * inv_width;
+			projectionMatrix.at(2, 1) = -s * (top + bottom) * inv_height;
+			projectionMatrix.at(2, 3) = s;
+			projectionMatrix.at(3, 3) = 0;
+			 
+			return  projectionMatrix;
+		}
 
 		
 
