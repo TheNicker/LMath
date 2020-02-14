@@ -37,7 +37,6 @@ namespace LMath
 		enum class IntersectState { Disjoint, Touch, Overlap };
 		using VectorType = VectorBase<T, DIM>;
 		using ElementType = typename VectorBase<T, DIM>::ElementType;
-		static const BoundsBase Uninitialized;
 		inline static const size_t Dimensions = DIM;
 
 
@@ -207,6 +206,7 @@ namespace LMath
 			return true;
 		}
 
+
 		bool operator ==(const BoundsBase& rhs) const
 		{
 			return minValue == rhs.minValue && maxValue == rhs.maxValue;
@@ -221,8 +221,5 @@ namespace LMath
 		VectorType minValue;
 		VectorType maxValue;
 	};
-
-	template <class T, size_t DIM>
-	const BoundsBase<T, DIM> BoundsBase<T, DIM>::Uninitialized;
 }
 #endif

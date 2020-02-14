@@ -16,11 +16,6 @@ TEST_CASE("BOUNDS", "[Bounds]")
 	BoundingBox bd1;
 	
 
-	SECTION("Object construction")
-	{
-		bd = BoundingBox::Uninitialized;
-	}
-
 
 	SECTION("ensure boundsBase functionality") {
 		REQUIRE(bd.Dimensions == 3);
