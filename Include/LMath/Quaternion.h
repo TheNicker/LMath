@@ -304,6 +304,13 @@ namespace LMath
 			return Vector4(*this * ( static_cast<Vector3>(rhs) / rhs.at(3)) , L_One);
 		}
 
+
+		Vector3 operator*(const VectorBaseTemplate<T,3>& rhs) const
+		{
+			return *this * static_cast<const Vector3&>(rhs);
+		}
+
+
 		Vector3 operator*(const Vector3& rhs) const
 		{
 			Vector3 u = static_cast<Vector3>(*this);
