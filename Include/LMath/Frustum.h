@@ -500,7 +500,10 @@ namespace LMath
 
         /** Retrieves info on the type of projection used (orthographic or perspective).
         */
-        ProjectionType getProjectionType(void) const;
+        ProjectionType getProjectionType() const
+        {
+            return mProjType;
+        }
 
         /** Sets the orthographic window settings, for use with orthographic rendering only. 
         @note Calling this method will recalculate the aspect ratio, use 
