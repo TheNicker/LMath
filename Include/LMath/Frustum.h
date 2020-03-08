@@ -15,6 +15,12 @@ namespace LMath
 		T top;
 	};
 
+	enum ProjectionType
+	{
+		Orthographic,
+		Perspective
+	};
+
 	template <typename T>
 	class  FrustumBase
 	{
@@ -25,16 +31,51 @@ namespace LMath
 		using Vector2 = VectorBase<ElementType, 2>;
 		using Vector3 = VectorBase<ElementType, 3>;
 		using Quaternion = QuaternionBase<ElementType>;
+		using Matrix3 = MatrixBase<ElementType, 3, 3>;
 		using Matrix4 = MatrixBase<ElementType, 4, 4>;
+		
+		void SetProjectionType()
+		{
+			throw std::logic_error("Not implemented");
+		}
+
+
+		ProjectionType GetProjectionType() const
+		{
+			return fProjectionType;
+		}
 
 		void SetPosition(const Vector3& position)
 		{
 			fPosition = position;
+			fViewMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 		void SetOrientation(const Quaternion& orientation)
 		{
 			fOrientation = orientation;
+			fViewMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
+		}
+
+
+		const Vector3 GetDirection() const
+		{
+			return fOrientation * Vector3::Forward;
+		}
+
+		const std::array<Vector3,8>& GetWorldSpaceCorners() const
+		{
+
+			if (fWorldSpaceCornersDirty == true)
+			{
+				using NonConstType = std::remove_const_t<std::remove_reference_t<decltype(*this)>>;
+				const_cast<NonConstType*>(this)->UpdateWorldSpaceCorners();
+				fWorldSpaceCornersDirty = false;
+			}
+			
+			return fWorldSpaceCorners;
 		}
 
 		const Vector3& GetPosition() const
@@ -54,18 +95,21 @@ namespace LMath
 		{
 			fNearClipPlane = clipPlane;
 			fProjectionMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 		void SetFarClipPlane(ElementType clipPlane)
 		{
 			fFarClipPlane = clipPlane;
 			fProjectionMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 		void SetHalfAngles(const HalfAnglesType& halfAngles)
 		{
 			fHalfAngles = halfAngles;
 			fProjectionMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 
@@ -88,6 +132,7 @@ namespace LMath
 				fHalfAngles.bottom = fovYHalfAngle;
 			}
 			fProjectionMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 		void SetHalfFOVY(ElementType halfAngle, Vector2 viewportSize, ElementType referenceHeight)
@@ -108,6 +153,7 @@ namespace LMath
 
 			}
 			fProjectionMatrixDirty = true;
+			fWorldSpaceCornersDirty = true;
 		}
 
 		const Matrix4& GetProjectionMatrix()
@@ -122,7 +168,12 @@ namespace LMath
 
 		Matrix4 GetViewMatrix()
 		{
-			return Matrix4::CreateViewMatrix(fPosition, fOrientation);
+			if (fViewMatrixDirty == true)
+			{
+				fViewMatrix = Matrix4::CreateViewMatrix(fPosition, fOrientation);
+				fViewMatrixDirty = false;
+			}
+			return fViewMatrix;
 		}
 
 	private:
@@ -157,6 +208,44 @@ namespace LMath
 			return { { -w_left + nearOffsetX, -h_bottom + nearOffsetY } , { w_right + nearOffsetX, h_top + nearOffsetY } };
 		}
 
+		void UpdateWorldSpaceCorners()
+		{
+			Matrix4 eyeToWorld = fViewMatrix.Inverse();
+
+			// Note: Even though we can dealing with general projection matrix here,
+			//       but because it's incompatibly with infinite far plane, thus, we
+			//       still need to working with projection parameters.
+
+			// Calc near plane corners
+			
+			Rect vp = CalcProjectionParameters();
+			using namespace GFXRenderer;
+			Real nearLeft = vp.GetMin().at(0) , nearRight = vp.GetMax().at(0), nearBottom = vp.GetMin().at(1), nearTop = vp.GetMax().at(1);
+
+			// Treat infinite fardist as some arbitrary far value
+			Real farDist = (fFarClipPlane == 0) ? 100000 : fFarClipPlane;
+
+			// Calc far palne corners
+			Real radio = fProjectionType == ProjectionType::Perspective ? farDist / fNearClipPlane : 1;
+			Real farLeft = nearLeft * radio;
+			Real farRight = nearRight * radio;
+			Real farBottom = nearBottom * radio;
+			Real farTop = nearTop * radio;
+
+			// near
+			fWorldSpaceCorners[0] = eyeToWorld * Vector3(nearRight, nearTop, -fNearClipPlane);
+			fWorldSpaceCorners[1] = eyeToWorld * Vector3(nearLeft, nearTop, -fNearClipPlane);
+			fWorldSpaceCorners[2] = eyeToWorld * Vector3(nearLeft, nearBottom, -fNearClipPlane);
+			fWorldSpaceCorners[3] = eyeToWorld * Vector3(nearRight, nearBottom, -fNearClipPlane);
+			// far
+			fWorldSpaceCorners[4] = eyeToWorld * Vector3(farRight, farTop, -farDist);
+			fWorldSpaceCorners[5] = eyeToWorld * Vector3(farLeft, farTop, -farDist);
+			fWorldSpaceCorners[6] = eyeToWorld * Vector3(farLeft, farBottom, -farDist);
+			fWorldSpaceCorners[7] = eyeToWorld * Vector3(farRight, farBottom, -farDist);
+
+
+		}
+
 
 	private:
 		Vector3 fPosition = Vector3::Zero;
@@ -164,10 +253,16 @@ namespace LMath
 		HalfAnglesType fHalfAngles;
 		Vector2 fFrustrumOffset = Vector2::Zero;
 		Matrix4 fProjectionMatrix = Matrix4::Zero;
+		Matrix4 fViewMatrix = Matrix4::Identity;
 		bool fKeepAspectRatio = true;
 		bool fProjectionMatrixDirty = true;
+		mutable bool fWorldSpaceCornersDirty = true;
+		bool fViewMatrixDirty = true;
+
 		ElementType fFarClipPlane = 1000.0;
 		ElementType fNearClipPlane = 1.0;
+		std::array<Vector3, 8> fWorldSpaceCorners;
+		ProjectionType fProjectionType = ProjectionType::Perspective;
 	};
 }
 #endif
