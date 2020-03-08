@@ -424,14 +424,12 @@ namespace LMath
 		{
 			using Matrix4 = MatrixBase<T, 4, 4>;
 			using Matrix3 = MatrixBase<T, 3, 3>;
-			Matrix4 viewMatrix;
 
-			// View matrix is:
-			//
-			//  [ Lx  Uy  Dz  Tx  ]
-			//  [ Lx  Uy  Dz  Ty  ]
-			//  [ Lx  Uy  Dz  Tz  ]
-			//  [ 0   0   0   1   ]
+			// Row major order view matrix:
+			//  [ Lx  Ly  Lz  Tx  ]
+			//  [ Ux  Uy  Uz  Ty  ]
+			//  [ Dx  Dy  Dz  Tz  ]
+			//  [ Tx  Ty  Tz  1   ]
 			//
 			// Where T = -(Transposed(Rot) * Pos)
 
@@ -439,14 +437,15 @@ namespace LMath
 			Matrix3 rotationMatrix = Matrix3::FromQuaternion(orientation);
 			Matrix3 rotationMatrixTransposed = rotationMatrix.Transpose();
 			
+
 			VectorBase<T, 3> translation = -rotationMatrixTransposed * position;
 
 			// Make final matrix
-			viewMatrix = static_cast<Matrix4>(rotationMatrixTransposed);// fills upper 3x3
+			Matrix4 viewMatrix = static_cast<Matrix4>(rotationMatrix);// fills upper 3x3
 
-			viewMatrix.at(0, 3) = translation.at(0);
-			viewMatrix.at(1, 3) = translation.at(1);
-			viewMatrix.at(2, 3) = translation.at(2);
+			viewMatrix.at(3, 0) = translation.at(0);
+			viewMatrix.at(3, 1) = translation.at(1);
+			viewMatrix.at(3, 2) = translation.at(2);
 			viewMatrix.at(3, 3) = 1.0;
 
 
