@@ -232,7 +232,7 @@ namespace LMath
 			Real farBottom = nearBottom * radio;
 			Real farTop = nearTop * radio;
 
-			// near
+
 			fWorldSpaceCorners[0] = eyeToWorld * Vector3(nearRight, nearTop, -fNearClipPlane);
 			fWorldSpaceCorners[1] = eyeToWorld * Vector3(nearLeft, nearTop, -fNearClipPlane);
 			fWorldSpaceCorners[2] = eyeToWorld * Vector3(nearLeft, nearBottom, -fNearClipPlane);

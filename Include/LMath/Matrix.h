@@ -21,17 +21,19 @@ namespace LMath
 
 		static const MatrixBase Zero;
 		static const MatrixBase Identity;
-		#pragma region Constructors
 
+		#pragma region Constructors
 		
 		template <typename... Args>
 		MatrixBase(ElementType first, Args... args)
 		{
 			_Assign<0, ROWS * COLS>(first, args...);
 		}
-
 		
-		MatrixBase() {}
+		MatrixBase() 
+		{
+			/// default constructor - do nothing
+		}
 		
 		//// Fill the matrix with a value - disable for now
 		//MatrixBase(VectorType::ElementType initializationValue) 		
@@ -105,6 +107,26 @@ namespace LMath
 
 			return result;
 		}
+
+#if LMATH_ENABLE_MATRIX4_MUL_IN_VECTOR3 == 1
+		////special optional common case when multiplying 4X4 matrices with vector3, (add 1.0 to the last componenet).
+		template <typename Vector3 =  VectorBase<ElementType, 3>>
+		Vector3 operator*(const Vector3& valueVec3) const
+		{
+			static_assert(ROWS == 4 && COLS == 4, "Special case only for multiplying Matrix4 in vector 3 ");
+			
+			VectorType result = VectorType::Zero;
+			
+			VectorType value = VectorType(valueVec3, VectorType::L_One);
+
+			for (size_t row = 0; row < ROWS; row++)
+				for (size_t col = 0; col < COLS; col++)
+					result.at(row) += at(row, col) * value.at(col);
+
+			return static_cast<Vector3>(result / result.at(3));
+
+		}
+#endif
 
 
 

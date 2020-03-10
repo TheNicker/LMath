@@ -89,7 +89,9 @@ TEST_CASE("Matrix3x3 times scalar", "[Matrix3x3]")
 {
     // Case 1
     Matrix3x3 m1 = Matrix3x3(2, -5, 3, 7, 1, -6, -9, 4, 8);
-    m1 = m1 * 3;
+    
+    
+    m1 = m1 * 3.0;
     Matrix3x3 m2 = Matrix3x3(6, -15, 9, 21, 3, -18, -27, 12, 24);
     CHECK_MATRIX(m1, m2);
     // Case 2
@@ -100,7 +102,7 @@ TEST_CASE("Matrix3x3 times scalar", "[Matrix3x3]")
     CHECK_MATRIX(m1, m2);
     // Case 3
     m1 = Matrix3x3(-27, 83, 32, -153, 53, 83, -64, 23, -46);
-    m1 = m1 * 13;
+    m1 = m1 * 13.0;
     m2 = Matrix3x3(-351, 1079, 416, -1989, 689, 1079, -832, 299, -598);
     CHECK_MATRIX(m1, m2);
 }
