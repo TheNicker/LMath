@@ -150,6 +150,16 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 			return ret;
 		}
 
+		VectorBaseTemplate Abs() const
+		{
+			VectorBaseTemplate ret;
+
+			for (size_t i = 0; i < DIM; i++)
+				ret.at(i) = std::abs(at(i));
+
+			return ret;
+		}
+
 		VectorBaseTemplate Round() const
 		{
 			VectorBaseTemplate ret;
