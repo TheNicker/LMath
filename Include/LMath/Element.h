@@ -28,6 +28,7 @@ SOFTWARE.
 #include <limits>
 #include <cmath>
 #include <sstream>
+#include <array>
 
 
 
