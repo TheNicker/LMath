@@ -78,6 +78,11 @@ namespace LMath
 			memcpy(&mElements, data, sizeof(ElementType) * dim);
 		}
 
+		ElementBase(const std::array<ElementType,dim>& arr)
+		{
+			memcpy(&mElements, arr.data(), sizeof(ElementType) * dim);
+		}
+
 
 		// Convert from the same type different dimension.
 		template <size_t RHS_DIM >
