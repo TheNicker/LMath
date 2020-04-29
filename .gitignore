@@ -3,3 +3,6 @@
 /Example/.vs
 /out
 /Build
+/CMakeSettings.json
+/Example/CMakeSettings.json
+/Test/CMakeSettings.json
