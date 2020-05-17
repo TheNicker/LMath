@@ -103,9 +103,9 @@ namespace LMath
                 // BTW, if d=0 there is one intersection, if d > 0 there are 2
                 // But we only want the closest one, so that's ok, just use the
                 // '-' version of the solver
-                ElementType t = ( -b - Math::Sqrt(d) ) / (2 * a);
+                ElementType t = ( -b - std::sqrt(d) ) / (2 * a);
                 if (t < 0)
-                    t = ( -b + Math::Sqrt(d) ) / (2 * a);
+                    t = ( -b + std::sqrt(d) ) / (2 * a);
                 return RayTestResult(true, t);
             }
         }
@@ -121,8 +121,8 @@ namespace LMath
 			Vector3 hitpoint;
 			const Vector3& min = box.getMinimum();
 			const Vector3& max = box.getMaximum();
-			const Vector3& rayorig = ray.getOrigin();
-			const Vector3& raydir = ray.getDirection();
+			const Vector3& rayorig = this->getOrigin();
+			const Vector3& raydir = this->getDirection();
 
 			// Check origin inside first
 			if (rayorig > min&& rayorig < max)

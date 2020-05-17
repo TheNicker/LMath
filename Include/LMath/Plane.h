@@ -57,7 +57,7 @@ namespace LMath
 
 		Side getSide(const Vector3& rkPoint) const
 		{
-			Real fDistance = getDistance(rkPoint);
+			ElementType fDistance = getDistance(rkPoint);
 
 			if (fDistance < 0.0)
 				return Side::Negative;
@@ -75,9 +75,9 @@ namespace LMath
 		Side getSide(const AxisAlignedBox& box) const
 		{
 			if (box.isNull())
-				return NO_SIDE;
+				return Side::None;
 			if (box.isInfinite())
-				return BOTH_SIDE;
+				return Side::Both;
 
 			return getSide(box.getCenter(), box.getHalfSize());
 		}
@@ -101,12 +101,12 @@ namespace LMath
 			ElementType maxAbsDist = normal.absDotProduct(halfSize);
 
 			if (dist < -maxAbsDist)
-				return NEGATIVE_SIDE;
+				return Side::Negative;
 
 			if (dist > +maxAbsDist)
-				return POSITIVE_SIDE;
+				return Side::Positive;
 
-			return BOTH_SIDE;
+			return Side::Both;
 		}
 
 		/** This is a pseudodistance. The sign of the return value is
@@ -125,8 +125,9 @@ namespace LMath
 		/** Redefine this plane based on 3 points. */
 		void redefine(const Vector3& p0, const Vector3& p1, const Vector3& p2)
 		{
-			normal = Math::calculateBasicFaceNormal(p0, p1, p2);
-			d = -normal.dotProduct(p0);
+			throw std::logic_error("not implemented");
+			//normal = Math::calculateBasicFaceNormal(p0, p1, p2);
+			//d = -normal.dotProduct(p0);
 		}
 
 		/** Redefine this plane based on a normal and a point. */

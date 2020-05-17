@@ -181,8 +181,8 @@ namespace LMath
 			ElementType angle = Angle(to);
 			if (angle == L_Zero)
 				return to;
-			maxRadiansDelta = std::max(maxRadiansDelta, angle - LMath::Constans::Pi);
-			ElementType t = std::min(L_One, maxRadiansDelta / angle);
+			maxRadiansDelta = (std::max)(maxRadiansDelta, angle - LMath::Constans::Pi);
+			ElementType t = (std::min)(L_One, maxRadiansDelta / angle);
 			return Slerp(to, t);
 		}
 

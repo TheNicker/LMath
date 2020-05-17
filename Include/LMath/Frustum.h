@@ -219,18 +219,24 @@ namespace LMath
 			// Calc near plane corners
 			
 			Rect vp = CalcProjectionParameters();
-			using namespace GFXRenderer;
-			Real nearLeft = vp.GetMin().at(0) , nearRight = vp.GetMax().at(0), nearBottom = vp.GetMin().at(1), nearTop = vp.GetMax().at(1);
+
+
+			
+			ElementType nearLeft = vp.GetMin().at(0);
+			ElementType nearRight = vp.GetMax().at(0);
+			ElementType nearBottom = vp.GetMin().at(1);
+			ElementType nearTop = vp.GetMax().at(1);
+
 
 			// Treat infinite fardist as some arbitrary far value
-			Real farDist = (fFarClipPlane == 0) ? 100000 : fFarClipPlane;
+			ElementType farDist = (fFarClipPlane == 0) ? 100000 : fFarClipPlane;
 
 			// Calc far palne corners
-			Real radio = fProjectionType == ProjectionType::Perspective ? farDist / fNearClipPlane : 1;
-			Real farLeft = nearLeft * radio;
-			Real farRight = nearRight * radio;
-			Real farBottom = nearBottom * radio;
-			Real farTop = nearTop * radio;
+			ElementType radio = fProjectionType == ProjectionType::Perspective ? farDist / fNearClipPlane : 1;
+			ElementType farLeft = nearLeft * radio;
+			ElementType farRight = nearRight * radio;
+			ElementType farBottom = nearBottom * radio;
+			ElementType farTop = nearTop * radio;
 
 
 			fWorldSpaceCorners[0] = eyeToWorld * Vector3(nearRight, nearTop, -fNearClipPlane);

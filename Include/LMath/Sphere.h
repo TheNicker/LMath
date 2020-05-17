@@ -19,7 +19,7 @@ namespace LMath
 		using AxisAlignedBox = BoundsBase<T, 3>;
 		using Plane = PlaneBase<T>;
 
-		SphereBase() : Sphere(static_cast<ElementType>(1.0), Vector3::Zero) {}
+		SphereBase() : SphereBase(static_cast<ElementType>(1.0), Vector3::Zero) {}
 		SphereBase(const Vector3& center, ElementType radius)
 			: mRadius(radius), mCenter(center) {}
 
