@@ -116,9 +116,10 @@ namespace LMath
 		}
 
 
-		std::string ToString()
+		template <typename char_type = char, typename string_type = std::basic_string<char_type> >
+		string_type ToString()
 		{
-			std::stringstream stream;
+			std::basic_stringstream<char_type> stream;
 			stream << '(' << at(0);
 
 			for (size_t i = 1; i < dim; i++)
