@@ -100,9 +100,9 @@ namespace LMath
 		VectorType operator*(const VectorType& value) const
 		{
 			VectorType  result = VectorType::Zero;
-			for (size_t row = 0; row < ROWS; row++)
-				for (size_t col = 0; col < COLS; col++)
-					result.at(row) += at(row, col) * value.at(col);
+			for (size_t col = 0; col < COLS; col++)
+				for (size_t row = 0; row < ROWS; row++)
+					result.at(col) += at(row, col) * value.at(row);
 					
 
 			return result;
@@ -119,9 +119,9 @@ namespace LMath
 			
 			VectorType value = VectorType(valueVec3, VectorType::L_One);
 
-			for (size_t row = 0; row < ROWS; row++)
-				for (size_t col = 0; col < COLS; col++)
-					result.at(row) += at(row, col) * value.at(col);
+			for (size_t col = 0; col < COLS; col++)
+				for (size_t row = 0; row < ROWS; row++)
+					result.at(col) += at(row, col) * value.at(row);
 
 			return static_cast<Vector3>(result / result.at(3));
 
@@ -232,6 +232,13 @@ namespace LMath
 		{
 			return mMatrix[row][col];
 		}
+
+		void assignVector(const VectorType& vector, size_t row)
+		{
+			for (size_t col = 0; col < COLS; col++)
+				at(row, col) = vector.at(col);
+		}
+		
 #pragma endregion
 
 		ElementType Determinant() const
@@ -447,30 +454,17 @@ namespace LMath
 			using Matrix4 = MatrixBase<T, 4, 4>;
 			using Matrix3 = MatrixBase<T, 3, 3>;
 
-			// Row major order view matrix:
-			//  [ Lx  Ly  Lz  Tx  ]
-			//  [ Ux  Uy  Uz  Ty  ]
-			//  [ Dx  Dy  Dz  Tz  ]
+			// Column major order view matrix:
+			//  [ Lx  Ly  Lz  0   ]
+			//  [ Ux  Uy  Uz  0   ]
+			//  [ Dx  Dy  Dz  0   ]
 			//  [ Tx  Ty  Tz  1   ]
-			//
-			// Where T = -(Transposed(Rot) * Pos)
 
-			// This is most efficiently done using 3x3 Matrices
 			Matrix3 rotationMatrix = Matrix3::FromQuaternion(orientation);
-			Matrix3 rotationMatrixTransposed = rotationMatrix.Transpose();
-			
-
-			VectorBase<T, 3> translation = -rotationMatrixTransposed * position;
-
-			// Make final matrix
-			Matrix4 viewMatrix = static_cast<Matrix4>(rotationMatrix);// fills upper 3x3
-
-			viewMatrix.at(3, 0) = translation.at(0);
-			viewMatrix.at(3, 1) = translation.at(1);
-			viewMatrix.at(3, 2) = translation.at(2);
-			viewMatrix.at(3, 3) = 1.0;
-
-
+			// fills upper 3x3
+			Matrix4 viewMatrix = static_cast<Matrix4>(rotationMatrix);
+			//assign translation vector
+			viewMatrix.assignVector({ -rotationMatrix * position, Matrix4::VectorType::L_One },3);
 			return viewMatrix;
 
 		}

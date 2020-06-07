@@ -243,15 +243,15 @@ namespace LMath
 			ElementType farTop = nearTop * radio;
 
 
-			fWorldSpaceCorners[0] = eyeToWorld * Vector3(nearRight, nearTop, -fNearClipPlane);
-			fWorldSpaceCorners[1] = eyeToWorld * Vector3(nearLeft, nearTop, -fNearClipPlane);
-			fWorldSpaceCorners[2] = eyeToWorld * Vector3(nearLeft, nearBottom, -fNearClipPlane);
-			fWorldSpaceCorners[3] = eyeToWorld * Vector3(nearRight, nearBottom, -fNearClipPlane);
+			fWorldSpaceCorners[0] = eyeToWorld * Vector3(nearRight, nearTop, fNearClipPlane);
+			fWorldSpaceCorners[1] = eyeToWorld * Vector3(nearLeft, nearTop, fNearClipPlane);
+			fWorldSpaceCorners[2] = eyeToWorld * Vector3(nearLeft, nearBottom, fNearClipPlane);
+			fWorldSpaceCorners[3] = eyeToWorld * Vector3(nearRight, nearBottom, fNearClipPlane);
 			// far
-			fWorldSpaceCorners[4] = eyeToWorld * Vector3(farRight, farTop, -farDist);
-			fWorldSpaceCorners[5] = eyeToWorld * Vector3(farLeft, farTop, -farDist);
-			fWorldSpaceCorners[6] = eyeToWorld * Vector3(farLeft, farBottom, -farDist);
-			fWorldSpaceCorners[7] = eyeToWorld * Vector3(farRight, farBottom, -farDist);
+			fWorldSpaceCorners[4] = eyeToWorld * Vector3(farRight, farTop, farDist);
+			fWorldSpaceCorners[5] = eyeToWorld * Vector3(farLeft, farTop, farDist);
+			fWorldSpaceCorners[6] = eyeToWorld * Vector3(farLeft, farBottom, farDist);
+			fWorldSpaceCorners[7] = eyeToWorld * Vector3(farRight, farBottom, farDist);
 
 
 		}
