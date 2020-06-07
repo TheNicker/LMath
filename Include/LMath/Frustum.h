@@ -202,7 +202,7 @@ namespace LMath
 
 			ElementType nearFocal = fNearClipPlane / fFarClipPlane;
 			ElementType nearOffsetX = fFrustrumOffset.X()  * nearFocal;
-			ElementType nearOffsetY = fFrustrumOffset.X() * nearFocal;
+			ElementType nearOffsetY = fFrustrumOffset.Y() * nearFocal;
 			ElementType w_left  = thetaLeft * fNearClipPlane;
 			ElementType w_right = thetaRight * fNearClipPlane;
 			ElementType h_bottom = omegaBottom * fNearClipPlane;
@@ -214,7 +214,7 @@ namespace LMath
 
 		void UpdateWorldSpaceCorners()
 		{
-			Matrix4 eyeToWorld = fViewMatrix.Inverse();
+			Matrix4 eyeToWorld = GetViewMatrix().Inverse();
 
 			// Note: Even though we can dealing with general projection matrix here,
 			//       but because it's incompatibly with infinite far plane, thus, we
