@@ -112,7 +112,11 @@ namespace LMath
 			fWorldSpaceCornersDirty = true;
 		}
 
-
+		const HalfAnglesType& GetHalfAngles() const
+		{  
+			return fHalfAngles;
+		}
+		
 		void SetHalfFOVX(ElementType halfAngle, Vector2 viewportSize, ElementType referenceWidth)
 		{
 			//Preserve scale
