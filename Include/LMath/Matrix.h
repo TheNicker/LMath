@@ -418,37 +418,54 @@ namespace LMath
 			return transMatrix;
 		}
 
-		
-		
-		static MatrixBase<T,3,3> FromQuaternion(const QuaternionBase<T>& rotation)
+
+		static MatrixBase FromQuaternion(const QuaternionBase<T>& rotation)
 		{
-			MatrixBase<T, 3,3> m = MatrixBase<T, 3,3>::Zero;
-			
-			double sqw = rotation.W() * rotation.W();
-			double sqx = rotation.X() * rotation.X();
-			double sqy = rotation.Y() * rotation.Y();
-			double sqz = rotation.Z() * rotation.Z();
+			static_assert(IsSquareMatrix()," Matrix dimensions must be square");
+			static_assert(ROWS >= 3, "Matrix dimensions must be eual or greater to 3");
 
-			double invSqr = 1 / (sqx + sqy + sqz + sqw);
-			m.at(0, 0) = (sqx - sqy - sqz + sqw) * invSqr;
-			m.at(1, 1) = (-sqx + sqy - sqz + sqw) * invSqr;
-			m.at(2, 2) = (-sqx - sqy + sqz + sqw) * invSqr;
+			MatrixBase rotationMatrix = static_cast<MatrixBase>(Create3X3RotationMatrix(rotation));
 
-			double tmp1 = rotation.X() * rotation.Y();
-			double tmp2 = rotation.Z() * rotation.W();
-			m.at(1, 0) = 2.0 * (tmp1 + tmp2) * invSqr;
-			m.at(0, 1) = 2.0 * (tmp1 - tmp2) * invSqr;
+			for (size_t pos = 3; pos < ROWS; pos++)
+				rotationMatrix.at(pos, pos) = VectorType::L_One;
 
-			tmp1 = rotation.X() * rotation.Z();
-			tmp2 = rotation.Y() * rotation.W();
+			return rotationMatrix;
+		}
+		
 
-			m.at(2,0)  = 2.0 * (tmp1 - tmp2) * invSqr;
-			m.at(0,2)  = 2.0 * (tmp1 + tmp2) * invSqr;
-			tmp1 = rotation.Y() * rotation.Z();
-			tmp2 = rotation.X() * rotation.W();
-			m.at(2,1) = 2.0 * (tmp1 + tmp2) * invSqr;
-			m.at(1,2) = 2.0 * (tmp1 - tmp2) * invSqr;
-			return m;
+		static MatrixBase<ElementType, 3,3> Create3X3RotationMatrix(const QuaternionBase<T>& rotation)
+		{
+			const ElementType fTx = rotation.X() + rotation.X();
+			const ElementType fTy = rotation.Y() + rotation.Y();
+			const ElementType fTz = rotation.Z() + rotation.Z();
+			const ElementType fTwx = fTx * rotation.W();
+			const ElementType fTwy = fTy * rotation.W();
+			const ElementType fTwz = fTz * rotation.W();
+			const ElementType fTxx = fTx * rotation.X();
+			const ElementType fTxy = fTy * rotation.X();
+			const ElementType fTxz = fTz * rotation.X();
+			const ElementType fTyy = fTy * rotation.Y();
+			const ElementType fTyz = fTz * rotation.Y();
+			const ElementType fTzz = fTz * rotation.Z();
+
+			return
+			{
+				// Left
+				  VectorType::L_One - (fTyy + fTzz)
+				, fTxy + fTwz
+				, fTxz - fTwy
+
+				// Up
+				, fTxy - fTwz
+				, VectorType::L_One - (fTxx + fTzz)
+				, fTyz + fTwx
+
+				//Forward
+				, fTxz + fTwy
+				, fTyz - fTwx
+				, VectorType::L_One - (fTxx + fTyy)
+
+			};
 		}
 		
 		static MatrixBase<T, 4, 4>  CreateViewMatrix(const VectorBase<T, 3>& position, const QuaternionBase<T>& orientation)
@@ -483,7 +500,7 @@ namespace LMath
 		)
 		{
 
-			MatrixBase<T, 4, 4> projectionMatrix = MatrixBase<T, 4, 4>::Identity;
+			MatrixBase<T, 4, 4> projectionMatrix = MatrixBase<T, 4, 4>::Zero;
 
 			auto inv_width = static_cast<ElementType>(1) / (right - left);
 			auto inv_height = static_cast<ElementType>(1) / (top - bottom);
@@ -491,11 +508,13 @@ namespace LMath
 			auto near2 = static_cast<ElementType>(2) * n;
 			auto s = leftHanded == true ? static_cast<ElementType>(1) : static_cast<ElementType>(-1);
 
-			if (z_clip == -1) {
+			if (z_clip == -1) 
+			{
 				projectionMatrix.at(2, 2) = s * (f + n) * inv_depth;
 				projectionMatrix.at(3, 2) = static_cast<ElementType>(-2) * f * n * inv_depth;
 			}
-			else { // z_clip == z_clip_zero
+			else 
+			{ // z_clip == z_clip_zero
 				projectionMatrix.at(2, 2) = s * f * inv_depth;
 				projectionMatrix.at(3, 2) = -s * n * projectionMatrix.at(2, 2);
 			}
@@ -505,7 +524,6 @@ namespace LMath
 			projectionMatrix.at(2, 0) = -s * (right + left) * inv_width;
 			projectionMatrix.at(2, 1) = -s * (top + bottom) * inv_height;
 			projectionMatrix.at(2, 3) = s;
-			projectionMatrix.at(3, 3) = 0;
 			 
 			return  projectionMatrix;
 		}

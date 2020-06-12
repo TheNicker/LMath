@@ -1,6 +1,8 @@
 #ifndef __LMATH_QUATERNOIN_H__
 #define __LMATH_QUATERNOIN_H__
 //#include "LMathConfig.h"
+#include <cassert>
+
 #include "Vector.h"
 #include "Math.h"
 
@@ -48,9 +50,9 @@ namespace LMath
 
 		static QuaternionBase FromAngleAxis(ElementType angle, const Vector3& axis)
 		{
-			ElementType m = axis.Length();
-			ElementType s = sin(angle / L_Two) / m;
-			return { axis.X() * s , axis.Y() * s  , axis.Z() * s , cos(angle / L_Two) };
+			assert("Axis vector must be normalized" && axis.Norm() == Vector3::L_One);
+			const ElementType halfAngle = angle * L_Half;
+			return { sin(halfAngle) * axis, cos(halfAngle) };
 		}
 
 		static QuaternionBase FromEuler(const Vector3& rotation)
@@ -288,20 +290,20 @@ namespace LMath
 
 		QuaternionBase operator*(const QuaternionBase& rhs) const
 		{
-			QuaternionBase ret;
-			ret.W() = W() * rhs.W() - X() * rhs.X() - Y() * rhs.Y() - Z() * rhs.Z();
-			ret.X() = X() * rhs.W() + W() * rhs.X() + Y() * rhs.Z() - Z() * rhs.Y();
-			ret.Y() = W() * rhs.Y() - X() * rhs.Z() + Y() * rhs.W() + Z() * rhs.X();
-			ret.Z() = W() * rhs.Z() + X() * rhs.Y() - Y() * rhs.X() + Z() * rhs.W();
-			return ret;
+		return 
+		{
+			   X() * rhs.W() + W() * rhs.X() + Y() * rhs.Z() - Z() * rhs.Y()
+			 , W() * rhs.Y() - X() * rhs.Z() + Y() * rhs.W() + Z() * rhs.X()
+			 , W() * rhs.Z() + X() * rhs.Y() - Y() * rhs.X() + Z() * rhs.W()
+			 , W() * rhs.W() - X() * rhs.X() - Y() * rhs.Y() - Z() * rhs.Z()
+		};
 		}
 
 
 		Vector4 operator*(const Vector4& rhs) const
 		{
 			//make sure W component in vector 4 is one.
-			
-			return Vector4(*this * ( static_cast<Vector3>(rhs) / rhs.at(3)) , L_One);
+			return Vector4(*this * ( static_cast<Vector3>(rhs / rhs.at(3)) ) , L_One);
 		}
 
 
@@ -313,13 +315,12 @@ namespace LMath
 
 		Vector3 operator*(const Vector3& rhs) const
 		{
-			Vector3 u = static_cast<Vector3>(*this);
-			ElementType s = W();
-			return u * (u.Dot(rhs) * L_Two)
-				+ rhs * (s * s - u.NormSquared())
-				+ u.Cross(rhs) * (L_Two * s);
+			const Vector3& qvec = static_cast<const Vector3&>(*this);
+			Vector3 uv = qvec.Cross(rhs);
+			Vector3 uuv = qvec.Cross(uv) * static_cast<ElementType>(2);
+			uv *= static_cast<ElementType>(2) * W();
+			return rhs + uv + uuv;
 		}
-
 	};
 
 	template <class T>
