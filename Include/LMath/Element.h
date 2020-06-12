@@ -117,7 +117,7 @@ namespace LMath
 
 
 		template <typename char_type = char, typename string_type = std::basic_string<char_type> >
-		string_type ToString()
+		string_type ToString() const
 		{
 			std::basic_stringstream<char_type> stream;
 			stream << '(' << at(0);
