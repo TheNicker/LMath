@@ -80,7 +80,7 @@ namespace LMath
 			for (size_t col = 0; col < RHS_COLS ; col++)
 				for (size_t row = 0; row < ROWS ; row++)
 					for (size_t idx = 0; idx < ROWS ; idx++)
-						result.at(row, col) += this->at(row, idx) * rhs.at(idx, col);
+						result.at(row, col) += this->at(idx, col) * rhs.at(row, idx);
 
 			return result;
 		}
@@ -114,17 +114,8 @@ namespace LMath
 		Vector3 operator*(const Vector3& valueVec3) const
 		{
 			static_assert(ROWS == 4 && COLS == 4, "Special case only for multiplying Matrix4 in vector 3 ");
-			
-			VectorType result = VectorType::Zero;
-			
-			VectorType value = VectorType(valueVec3, VectorType::L_One);
-
-			for (size_t col = 0; col < COLS; col++)
-				for (size_t row = 0; row < ROWS; row++)
-					result.at(col) += at(row, col) * value.at(row);
-
+			VectorType result = *this * VectorType(valueVec3, VectorType::L_One);
 			return static_cast<Vector3>(result / result.at(3));
-
 		}
 #endif
 
@@ -418,6 +409,17 @@ namespace LMath
 			return scaleMatrix;
 		}
 
+		static MatrixBase<ElementType,4,4>  CreateTranslationMatrix(const VectorBase<ElementType,3>& trans)
+		{
+			MatrixBase<ElementType, 4, 4> transMatrix = MatrixBase<ElementType, 4, 4>::Identity;
+			transMatrix.at(3, 0) = trans.at(0);
+			transMatrix.at(3, 1) = trans.at(1);
+			transMatrix.at(3, 2) = trans.at(2);
+			return transMatrix;
+		}
+
+		
+		
 		static MatrixBase<T,3,3> FromQuaternion(const QuaternionBase<T>& rotation)
 		{
 			MatrixBase<T, 3,3> m = MatrixBase<T, 3,3>::Zero;
@@ -460,11 +462,11 @@ namespace LMath
 			//  [ Dx  Dy  Dz  0   ]
 			//  [ Tx  Ty  Tz  1   ]
 
-			Matrix3 rotationMatrix = Matrix3::FromQuaternion(orientation);
-			// fills upper 3x3
-			Matrix4 viewMatrix = static_cast<Matrix4>(rotationMatrix);
-			//assign translation vector
-			viewMatrix.assignVector({ -rotationMatrix * position, Matrix4::VectorType::L_One },3);
+			Matrix3 rotation = Matrix3::FromQuaternion(orientation);
+			Matrix3 transpose = rotation.Transpose();
+			Matrix4 viewMatrix = static_cast<Matrix4>(transpose);
+			
+			viewMatrix.assignVector({ -transpose * position, 1.0 }, 3);
 			return viewMatrix;
 
 		}

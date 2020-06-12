@@ -113,3 +113,29 @@ TEST_CASE("Matrix4x4 explicit cast", "[Matrix4x4]")
 	Matrix6X6 expanded = static_cast<Matrix6X6>(reduced);
 	CHECK_MATRIX(expanded, exapndedReference);
 };
+
+TEST_CASE("Matrix4x4 math operations", "[Matrix4x4]")
+{
+	using Matrix3X3 = LMath::MatrixBase<double, 3, 3>;
+	using Quaternion = LMath::QuaternionBase<double>;
+	using Vector3 = LMath::VectorBase<double, 3>;
+	const Quaternion orientation = Quaternion::FromEuler(Vector3(40, 110, 0) * LMath::Constans::DegToRad);
+	const Vector3 position{ 130,5,-12 };
+	
+	Matrix3X3 rotation = Matrix3X3::FromQuaternion(orientation);
+	Matrix3X3 transpose = rotation.Transpose();
+	Matrix4X4 viewMatrix = static_cast<Matrix4X4>(transpose);
+
+	viewMatrix.assignVector({ -transpose * position, 1.0 }, 3);
+
+	Matrix4X4 translationMatrix = Matrix4X4::Identity;
+	translationMatrix.assignVector({ position , 1.0 }, 3);
+	auto rotation4 = static_cast<Matrix4X4>(rotation);
+	rotation4.at(3, 3) = 1.0;
+	auto viewMatrix2 = (translationMatrix * rotation4).Inverse();
+	CHECK_MATRIX(viewMatrix, viewMatrix2);
+
+};
+
+
+
