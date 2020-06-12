@@ -189,7 +189,7 @@ namespace LMath
 			ElementType right = rect.GetMax().at(0);
 			ElementType top = rect.GetMax().at(1);
 
-			fProjectionMatrix =  Matrix4::CreateProjectionMatrix(left, bottom,top,right, fNearClipPlane, fFarClipPlane, -1, true);
+			fProjectionMatrix =  Matrix4::CreateProjectionMatrix(left, bottom,top,right, fNearClipPlane, fFarClipPlane, 0, true);
 		}
 
 		Rect CalcProjectionParameters()
