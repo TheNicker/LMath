@@ -50,7 +50,7 @@ namespace LMath
 
 		static QuaternionBase FromAngleAxis(ElementType angle, const Vector3& axis)
 		{
-			assert("Axis vector must be normalized" && axis.Norm() == Vector3::L_One);
+			//assert("Axis vector must be normalized" && axis.Norm() == Vector3::L_One);
 			const ElementType halfAngle = angle * L_Half;
 			return { sin(halfAngle) * axis, cos(halfAngle) };
 		}
@@ -315,7 +315,10 @@ namespace LMath
 
 		Vector3 operator*(const Vector3& rhs) const
 		{
-			const Vector3& qvec = static_cast<const Vector3&>(*this);
+			//CLang throws error here, in the meantime initialize qvec on the stack.
+			// TODO: Fix compilation with CLang using the following commented line.
+			//const Vector3& qvec = static_cast<const Vector3&>(*this);
+			const Vector3 qvec = { X(), Y(), Z()};
 			Vector3 uv = qvec.Cross(rhs);
 			Vector3 uuv = qvec.Cross(uv) * static_cast<ElementType>(2);
 			uv *= static_cast<ElementType>(2) * W();

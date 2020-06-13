@@ -660,21 +660,20 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 	using VectorBase = VectorBaseTemplateX<T, DIM>;
 
 
-
-		
 	
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Backward(0, 0, -1);
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Forward(0, 0, 1);
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Right(1, 0, 0);
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Left (-1,0,0);
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Up(0, 1, 0);
-	template <class T>	const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Down(0,-1,0);
-		 
+	////Predefined vectors in R3
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Backward(0, 0, -1);
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Forward(0, 0, 1);
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Right(1, 0, 0);
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Left (-1,0,0);
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Up(0, 1, 0);
+	template <class T> const VectorBaseTemplateX<T,3> VectorBaseTemplateX<T,3>::Down(0,-1,0);
 
-	template <class T>	const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Down(0, -1);
-	template <class T>	const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Up(0, 1);
-	template <class T>	const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Left(-1, 0);
-	template <class T>	const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Right (1,0);
+	//Predefined vectors in R2
+	template <class T> const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Down(0, -1);
+	template <class T> const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Up(0, 1);
+	template <class T> const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Left(-1, 0);
+	template <class T> const VectorBaseTemplateX<T,2> VectorBaseTemplateX<T,2>::Right (1,0);
 	
 
 	

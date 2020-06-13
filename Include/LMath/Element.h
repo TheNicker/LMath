@@ -61,25 +61,25 @@ namespace LMath
 		}
 
 		template <size_t INDEX = 0, typename... Args>
-		ElementBase(ElementType first, Args... args)
+		constexpr ElementBase(ElementType first, Args... args)
 		{
 			_Assign<INDEX>(static_cast<ElementType>(first), args...);
 		}
 
 
 		template <size_t INDEX = 0, size_t RHS_DIM, typename... Args>
-		ElementBase(const ElementBase<ElementType, RHS_DIM>& rhs, Args... args)
+		constexpr ElementBase(const ElementBase<ElementType, RHS_DIM>& rhs, Args... args)
 		{
 			_Assign<INDEX>(rhs, args...);
 		}
 
 
-		ElementBase(const ElementType* data)
+		constexpr ElementBase(const ElementType* data)
 		{
 			memcpy(&mElements, data, sizeof(ElementType) * dim);
 		}
 
-		ElementBase(const std::array<ElementType,dim>& arr)
+		constexpr ElementBase(const std::array<ElementType,dim>& arr)
 		{
 			memcpy(&mElements, arr.data(), sizeof(ElementType) * dim);
 		}
@@ -87,21 +87,21 @@ namespace LMath
 
 		// Convert from the same type different dimension.
 		template <size_t RHS_DIM >
-		explicit ElementBase(const ElementBase<ElementType, RHS_DIM>& rhs)
+		constexpr explicit ElementBase(const ElementBase<ElementType, RHS_DIM>& rhs)
 		{
 			_AssignFromElementBase(rhs);
 		}
 
 		// Convert from different type and dimension.
 		template <typename RHS_U, size_t RHS_DIM >
-		explicit ElementBase(const ElementBase<RHS_U, RHS_DIM>& rhs)
+		constexpr explicit ElementBase(const ElementBase<RHS_U, RHS_DIM>& rhs)
 		{
 			_AssignFromElementBase(rhs);
 		}
 		
 		
 
-		ElementBase() 
+		constexpr ElementBase()
 #if LMATH_ALWAYS_INITIALIZE_VARIABLES == 1
 			: ElementBase(L_Zero)
 #endif
@@ -109,7 +109,7 @@ namespace LMath
 
 		}
 
-		ElementBase(ElementType initializationValue)
+		constexpr ElementBase(ElementType initializationValue)
 		{
 			for (size_t i = 0; i < dim; i++)
 				at(i) = initializationValue;
@@ -136,7 +136,7 @@ namespace LMath
 #pragma region Private helper methods
 	private:
 		template <size_t INDEX>
-		void _Assign(ElementType element)
+		constexpr void _Assign(ElementType element)
 		{
 
 			static_assert(INDEX == dim - 1, "Error, wrong number of arguments passed to VectorBase constructor");
@@ -144,14 +144,14 @@ namespace LMath
 		}
 
 		template <size_t INDEX, typename ...ARGS>
-		void _Assign(ElementType element, ARGS... args)
+		constexpr void _Assign(ElementType element, ARGS... args)
 		{
 			at(INDEX) = element;
 			_Assign<INDEX + 1>(args...);
 		}
 
 		template <size_t INDEX, size_t RHS_DIM>
-		void _Assign(const ElementBase<ElementType, RHS_DIM>& rhs)
+		constexpr void _Assign(const ElementBase<ElementType, RHS_DIM>& rhs)
 		{
 			static_assert(INDEX + RHS_DIM == dim, "Error, wrong number of arguments passed to VectorBase constructor");
 			for (size_t i = 0; i < RHS_DIM; i++)
@@ -159,7 +159,7 @@ namespace LMath
 		}
 
 		template <size_t INDEX, size_t RHS_DIM, typename ...ARGS>
-		void _Assign(const ElementBase<ElementType, RHS_DIM>& rhs, ARGS... args)
+		constexpr void _Assign(const ElementBase<ElementType, RHS_DIM>& rhs, ARGS... args)
 		{
 			for (size_t i = 0; i < RHS_DIM; i++)
 				at(i + INDEX) = rhs.at(i);
@@ -168,7 +168,7 @@ namespace LMath
 		}
 
 		template <typename RHS_TYPE, size_t RHS_DIM>
-		void _AssignFromElementBase(const ElementBase<RHS_TYPE, RHS_DIM>& rhs)
+		constexpr void _AssignFromElementBase(const ElementBase<RHS_TYPE, RHS_DIM>& rhs)
 		{
 			const size_t elementsToConvert = (std::min)(dim, RHS_DIM);
 

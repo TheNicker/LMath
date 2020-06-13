@@ -25,32 +25,19 @@ namespace LMath
 		#pragma region Constructors
 		
 		template <typename... Args>
-		MatrixBase(ElementType first, Args... args)
+		constexpr MatrixBase(ElementType first, Args... args)
 		{
 			_Assign<0, ROWS * COLS>(first, args...);
 		}
 		
-		MatrixBase() 
+		constexpr MatrixBase()
 		{
+#if LMATH_ALWAYS_INITIALIZE_VARIABLES == 1
+			* this = Matrix::Zero;
+#endif
 			/// default constructor - do nothing
+			/// 
 		}
-		
-		//// Fill the matrix with a value - disable for now
-		//MatrixBase(VectorType::ElementType initializationValue) 		
-		//{
-		//	for (size_t row = 0; row < ROWS; row++)
-		//		for (size_t col = 0; col < COLS; col++)
-		//			at(row, col) = initializationValue;
-		//}
-
-		// initialize using initializer list - disable for now 
-		/*MatrixBase( std::array<typename VectorType::ElementType, ROWS * COLS> elements)
-		{
-
-			for (size_t row = 0; row < ROWS; row++)
-				for (size_t col = 0; col < COLS; col++)
-					at(row, col) = elements.at(row * COLS + col);
-		}*/
 
 #pragma endregion
 
@@ -73,7 +60,7 @@ namespace LMath
 
 		//Operator *
 		template <size_t RHS_ROWS, size_t RHS_COLS>
-		MatrixBase <ElementType, ROWS, RHS_COLS> operator*(const MatrixBase<ElementType, RHS_ROWS, RHS_COLS>& rhs)
+		MatrixBase <ElementType, ROWS, RHS_COLS> operator*(const MatrixBase<ElementType, RHS_ROWS, RHS_COLS>& rhs) const
 		{
 			using MatrixOutputType = MatrixBase <ElementType, ROWS, RHS_COLS>;
 			MatrixOutputType result = MatrixOutputType::Zero;
@@ -250,10 +237,8 @@ namespace LMath
 		}
 
 
-		MatrixBase Scale(const MatrixBase& value)
+		MatrixBase MultiplyPerComponent(const MatrixBase& value)
 		{
-			static_assert( IsSquareMatrix(), "Scale applies only to square matrices.");
-
 			MatrixBase result = *this;
 
 			for (size_t row = 0; row < ROWS; row++)
@@ -305,7 +290,7 @@ namespace LMath
 
 		MatrixBase Adjoint() const
 		{
-			static_assert(IsSquareMatrix(), "Scale applies only to square matrices.");
+			static_assert(IsSquareMatrix(), "Adjoint applies only to square matrices.");
 
 			MatrixBase minors;
 
@@ -318,6 +303,7 @@ namespace LMath
 
 		MatrixBase Inverse() const
 		{
+			static_assert(IsSquareMatrix(), "Inverse applies only to square matrices.");
 			return  Adjoint().Transpose() / Determinant();
 		}
 
@@ -325,7 +311,7 @@ namespace LMath
 		
 		QuaternionBase<T> ToQuaternion() const
 		{
-			static_assert(ROWS == 3 && COLS == 3, "Only Matrix 3X3 can be converted to quanternoin.");
+			static_assert(ROWS == 3 && COLS == 3, "Only Matrix 3X3 can be converted to quaternion.");
 			
 
 			
@@ -396,7 +382,7 @@ namespace LMath
 
 		static MatrixBase  CreateScaleMatrix(const VectorType& scaleVec)
 		{
-			MatrixBase scaleMatrix = MatrixBase::Zero;
+			MatrixBase scaleMatrix = MatrixBase::Identity;
 			scaleMatrix.SetScale(scaleVec);
 			return scaleMatrix;
 		}
@@ -404,7 +390,7 @@ namespace LMath
 		template <typename... Args>
 		static MatrixBase  CreateScaleMatrix(ElementType first, Args... args)
 		{
-			MatrixBase scaleMatrix = MatrixBase::Zero;
+			MatrixBase scaleMatrix = MatrixBase::Identity;
 			scaleMatrix.SetScale(first, args...);
 			return scaleMatrix;
 		}
@@ -422,7 +408,7 @@ namespace LMath
 		static MatrixBase FromQuaternion(const QuaternionBase<T>& rotation)
 		{
 			static_assert(IsSquareMatrix()," Matrix dimensions must be square");
-			static_assert(ROWS >= 3, "Matrix dimensions must be eual or greater to 3");
+			static_assert(ROWS >= 3, "Matrix dimensions must be equal or greater to 3");
 
 			MatrixBase rotationMatrix = static_cast<MatrixBase>(Create3X3RotationMatrix(rotation));
 
@@ -539,7 +525,7 @@ namespace LMath
 		}
 		
 
-		static MatrixBase  CreateIdentityMatrix()
+		constexpr static MatrixBase  CreateIdentityMatrix()
 		{
 			MatrixBase identity = MatrixBase::Zero;
 			
@@ -551,7 +537,7 @@ namespace LMath
 
 		}
 
-		static MatrixBase  CreateZeroMatrix()
+		constexpr static MatrixBase  CreateZeroMatrix()
 		{
 			MatrixBase zero;
 			for (size_t i = 0; i < ROWS * COLS; i++)
@@ -561,7 +547,7 @@ namespace LMath
 		}
 
 		template <size_t INDEX,size_t NUM_ELEMENTS>
-		void _Assign(ElementType element)
+		constexpr void _Assign(ElementType element)
 		{
 
 			static_assert(INDEX == NUM_ELEMENTS - 1, "Error, wrong number of arguments passed to VectorBase constructor");
@@ -570,7 +556,7 @@ namespace LMath
 		}
 
 		template <size_t INDEX, size_t NUM_ELEMENTS ,typename ...ARGS>
-		void _Assign(ElementType element, ARGS... args)
+		constexpr void _Assign(ElementType element, ARGS... args)
 		{
 			at(INDEX) = element;
 			_Assign<INDEX + 1, NUM_ELEMENTS>(args...);
@@ -578,7 +564,7 @@ namespace LMath
 
 
 		template <size_t POS, size_t NUM_ELEMENTS>
-		void _AssignScale(ElementType element)
+		constexpr void _AssignScale(ElementType element)
 		{
 
 			static_assert(POS == NUM_ELEMENTS -1, "Error, wrong number of arguments passed to VectorBase constructor");
@@ -586,7 +572,7 @@ namespace LMath
 		}
 
 		template <size_t POS, size_t NUM_ELEMENTS , typename ...ARGS>
-		void _AssignScale(ElementType element, ARGS... args)
+		constexpr void _AssignScale(ElementType element, ARGS... args)
 		{
 			at(POS, POS) = element;
 			_AssignScale<POS + 1, NUM_ELEMENTS>(args...);
