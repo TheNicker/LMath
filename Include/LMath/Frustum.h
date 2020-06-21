@@ -111,7 +111,14 @@ namespace LMath
 			fProjectionMatrixDirty = true;
 			fWorldSpaceCornersDirty = true;
 		}
-
+		
+		const ElementType GetMaxFrustumRadius(ElementType distance) const
+		{
+			std::array<ElementType, 4> arr = { fHalfAngles.left, fHalfAngles.right , fHalfAngles.top , fHalfAngles.bottom };
+			
+			return std::tan(  *std::max_element(std::begin(arr),std::end(arr)) ) * distance;
+		}
+		
 		const HalfAnglesType& GetHalfAngles() const
 		{  
 			return fHalfAngles;
