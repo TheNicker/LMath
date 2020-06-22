@@ -173,11 +173,11 @@ namespace LMath
 			const size_t elementsToConvert = (std::min)(dim, RHS_DIM);
 
 			for (size_t i = 0; i < elementsToConvert; i++)
-				at(i) = rhs.at(i);
+				at(i) = static_cast<ElementType>(rhs.at(i));
 
 
 			for (size_t i = elementsToConvert; i < dim; i++)
-				at(i) = 0;
+				at(i) = L_Zero;
 
 		}
 

@@ -252,7 +252,7 @@ namespace LMath
 			ElementType test = X() * W() - Y() * Z();
 			Vector3 v;
 			// Singularity at north pole
-			if (test > 0.4995f * unit)
+			if (test > static_cast<ElementType>(0.4995) * unit)
 			{
 				v.Y() = L_Two * atan2(Y(), X());
 				v.X() = LMath::Constans::PiOver2;
@@ -260,7 +260,7 @@ namespace LMath
 				return v;
 			}
 			// Singularity at south pole
-			if (test < -0.4995f * unit)
+			if (test < static_cast <ElementType>(-0.4995) * unit)
 			{
 				v.Y() = -L_Two * atan2(Y(), X());
 				v.X() = -LMath::Constans::PiOver2;
