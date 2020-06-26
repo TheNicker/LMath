@@ -96,7 +96,7 @@ namespace LMath
 	{
 		static_assert(std::is_unsigned_v<T>, "Argument to IsPowerOfTwo must be unsigned.");
 		static_assert(std::is_integral_v<T>, "Argument to IsPowerOfTwo must be an integral numeric type.");
-		return (x & -x) == x;
+		return (x & (~x + 1)) == x;
 	}
 
 	template <typename T>

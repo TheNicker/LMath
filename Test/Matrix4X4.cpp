@@ -1,7 +1,7 @@
 #include <catch2/catch.hpp>
 #include <LMath/Matrix.h>
 
-using Matrix4X4 = LMath::MatrixBase<double, 4, 4>;
+using Matrix4X4 = LMath::MatrixBase<double, 4, 4, LMath::MatrixVectors::Column>;
 
 #define CHECK_MATRIX(a, b) \
 	 for (size_t i = 0 ; i < decltype(a)::Rows * decltype(a)::Cols ; i++) \
@@ -23,7 +23,7 @@ TEST_CASE("Matrix4x4 Unary  - operator", "[Matrix4x4]")
 
 	Matrix4X4 m2 = -m1;
 
-	CHECK_MATRIX(m2, reference);
+	CHECK_MATRIX(m2, reference)
 
 }
 
@@ -40,7 +40,7 @@ TEST_CASE("Matrix4x4 inverse", "[Matrix4x4]")
 				, 3 , 0.5 , -1, -0.5);
 	 m1 = m1.Inverse();
 
-	 CHECK_MATRIX(m1, reference);
+	 CHECK_MATRIX(m1, reference)
 
 }
 
@@ -69,7 +69,7 @@ TEST_CASE("Matrix4x4 multiply", "[Matrix4x4]")
 
 	Matrix4X4 m4 = m1 * m2;
 
-	CHECK_MATRIX(m4, reference);
+	CHECK_MATRIX(m4, reference)
 
 }
 
@@ -84,7 +84,7 @@ TEST_CASE("Matrix4x4 explicit cast", "[Matrix4x4]")
 	, 7, 71, 89, 83);
 
 
-	using Matrix3X3 = LMath::MatrixBase<double, 3, 3>;
+	using Matrix3X3 = LMath::MatrixBase<double, 3, 3, LMath::MatrixVectors::Column>;
 
 
 	Matrix3X3 reducedReference (
@@ -96,9 +96,9 @@ TEST_CASE("Matrix4x4 explicit cast", "[Matrix4x4]")
 
 	
 
-	CHECK_MATRIX(reduced, reducedReference);
+	CHECK_MATRIX(reduced, reducedReference)
 
-	using Matrix6X6 = LMath::MatrixBase<double, 6, 6>;
+	using Matrix6X6 = LMath::MatrixBase<double, 6, 6, LMath::MatrixVectors::Column>;
 
 	Matrix6X6 exapndedReference(
 		66, 24, 68,0,0,0
@@ -111,12 +111,13 @@ TEST_CASE("Matrix4x4 explicit cast", "[Matrix4x4]")
 
 
 	Matrix6X6 expanded = static_cast<Matrix6X6>(reduced);
-	CHECK_MATRIX(expanded, exapndedReference);
+	CHECK_MATRIX(expanded, exapndedReference)
 };
 
 TEST_CASE("Matrix4x4 math operations", "[Matrix4x4]")
 {
-	using Matrix3X3 = LMath::MatrixBase<double, 3, 3>;
+	using Matrix3X3 = LMath::MatrixBase<double, 3, 3, LMath::MatrixVectors::Column>;
+	using Matrix4X4 = LMath::MatrixBase<double, 4, 4, LMath::MatrixVectors::Column>;
 	using Quaternion = LMath::QuaternionBase<double>;
 	using Vector3 = LMath::VectorBase<double, 3>;
 	const Quaternion orientation = Quaternion::FromEuler(Vector3(40, 110, 0) * LMath::Constans::DegToRad);
@@ -125,7 +126,7 @@ TEST_CASE("Matrix4x4 math operations", "[Matrix4x4]")
 	Matrix3X3 rotation = Matrix3X3::FromQuaternion(orientation);
 	Matrix3X3 transpose = rotation.Transpose();
 	Matrix4X4 viewMatrix = static_cast<Matrix4X4>(transpose);
-
+	
 	viewMatrix.assignVector({ -transpose * position, 1.0 }, 3);
 
 	Matrix4X4 translationMatrix = Matrix4X4::Identity;

@@ -57,7 +57,7 @@ namespace LMath
             if ( std::abs(denom) < std::numeric_limits<ElementType>::epsilon())
             {
                 // Parallel
-                return Result(false, (ElementType)0);
+                return Result(false, static_cast<ElementType>(0));
             }
             else
             {

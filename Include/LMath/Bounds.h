@@ -34,11 +34,10 @@ namespace LMath
 	class BoundsBase
 	{
 	public:
-		enum class IntersectState { Disjoint, Touch, Overlap };
+		enum class Relation { Disjoint, Adjacent, Overlap };
 		using VectorType = VectorBase<T, DIM>;
 		using ElementType = typename VectorBase<T, DIM>::ElementType;
 		inline static const size_t Dimensions = DIM;
-
 
 		BoundsBase()
 		{
@@ -87,31 +86,31 @@ namespace LMath
 			return intersects;
 		}
 
-		void computeIntersection(int sign, IntersectState& currentState) const
+		void computeIntersection(ElementType sign, Relation& currentState) const
 		{
-			switch (sign)
+			switch (static_cast<int8_t>(sign))
 			{
 			case -1:
 				//Disjoint
-				currentState = IntersectState::Disjoint;
+				currentState = Relation::Disjoint;
 				break;
 			case 0:
-				// Touch
-				currentState = (std::min)(currentState, IntersectState::Touch);
+				// Adjacent
+				currentState = (std::min)(currentState, Relation::Adjacent);
 				break;
 				//overlap
 			case 1:
-				currentState = (std::min)(currentState, IntersectState::Overlap);
+				currentState = (std::min)(currentState, Relation::Overlap);
 				break;
 			}
 
 		}
 
-		IntersectState Contains(const BoundsBase& rhs) const
+		Relation RelationTo(const BoundsBase& rhs) const
 		{
-			IntersectState result = IntersectState::Overlap;
+			Relation result = Relation::Overlap;
 			size_t i = 0;
-			while (result != IntersectState::Disjoint && i < DIM)
+			while (result != Relation::Disjoint && i < DIM)
 			{
 				const ElementType sign = Sign((maxValue.at(i) - rhs.minValue.at(i)) * (rhs.maxValue.at(i) - minValue.at(i)));
 				computeIntersection(sign, result);
@@ -122,11 +121,11 @@ namespace LMath
 		}
 
 
-		IntersectState Contains(const VectorType& rhs) const
+		Relation RelationTo(const VectorType& rhs) const
 		{
-			IntersectState result = IntersectState::Overlap;
+			Relation result = Relation::Overlap;
 			size_t i = 0;
-			while (result != IntersectState::Disjoint && i < DIM)
+			while (result != Relation::Disjoint && i < DIM)
 			{
 				const ElementType sign = Sign((maxValue.at(i) - rhs.at(i)) * (rhs.at(i) - minValue.at(i)));
 				computeIntersection(sign, result);
@@ -134,20 +133,6 @@ namespace LMath
 			}
 
 			return result;
-		}
-
-		[[deprecated("deprectead use Contains instead")]]
-		bool Intersects(const BoundsBase& rhs) const
-		{
-			bool intersects = true;
-			size_t i = 0;
-			while (intersects == true && i < DIM)
-			{
-				intersects &= maxValue.at(i) > rhs.minValue.at(i) && minValue.at(i) < rhs.maxValue.at(i);
-				i++;
-			}
-
-			return intersects;
 		}
 
 		template<typename... Args>

@@ -39,16 +39,15 @@ TEST_CASE("BOUNDS", "[Bounds]")
 		REQUIRE(bd.IsInside({ 1,3,6 }) == false);
 		REQUIRE(bd.IsInsideOrBoundry({ 1,3,6 }) == true);
 		REQUIRE((bd.Intersection(BoundingBox({ 0,0,0 }, { 9, 15, 3 })) == BoundingBox({ 0, 0, 0 }, { 5,5,3 })) == true);
-		REQUIRE(bd.Intersects(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == false);
-		REQUIRE(bd.Contains(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == BoundingBox::IntersectState::Touch);
+		REQUIRE(bd.RelationTo(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == BoundingBox::Relation::Adjacent);
 		
 		REQUIRE(bd.IntersectsIncludeBoundry(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == true);
 
-		REQUIRE(bd.Contains(BoundingBox::VectorType( 1,3,6 )) == BoundingBox::IntersectState::Touch);
-		REQUIRE(bd.Contains(BoundingBox::VectorType(1, 3, 7)) == BoundingBox::IntersectState::Disjoint);
-		REQUIRE(bd.Contains(BoundingBox::VectorType(1, 3, 5)) == BoundingBox::IntersectState::Overlap);
+		REQUIRE(bd.RelationTo(BoundingBox::VectorType( 1,3,6 )) == BoundingBox::Relation::Adjacent);
+		REQUIRE(bd.RelationTo(BoundingBox::VectorType(1, 3, 7)) == BoundingBox::Relation::Disjoint);
+		REQUIRE(bd.RelationTo(BoundingBox::VectorType(1, 3, 5)) == BoundingBox::Relation::Overlap);
 		
-		REQUIRE(bd.Contains(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == BoundingBox::IntersectState::Touch);
+		REQUIRE(bd.RelationTo(BoundingBox({ -4.0, -5.0, -6.0 }, { -2.0,5.0,5.0 })) == BoundingBox::Relation::Adjacent);
 		
 
 		REQUIRE(BoundingBox({ -2.0, -1, 0.0 }, { 5,5,5 }).Inflate(3).GetSpan(0) == 13.0);
@@ -180,6 +179,7 @@ TEST_CASE("VECTOR", "[Vector]")
 		VectorBase<double, 3> vec(0.5, -0.5, 0);
 		VectorBase<double, 3> normal(0, 1, 0);
 		VectorBase<double, 3> reflected = vec.Reflect(normal);
+		REQUIRE((reflected == VectorBase<double, 3>(0.5,0.5,0.0)));
 	}
 
 }

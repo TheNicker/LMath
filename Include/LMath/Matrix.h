@@ -6,15 +6,21 @@
 
 namespace LMath
 {
+	enum class MatrixVectors
+	{
+		  Column
+		, Row
+	};
+
 	//Row major base matrix 
-	template <typename T,size_t ROWS, size_t COLS>
+	template <typename T,size_t ROWS, size_t COLS, MatrixVectors VECTORS = MatrixVectors::Row>
 	class MatrixBase
 	{
 	public:
-		static bool constexpr  IsSquareMatrix() {return ROWS == COLS;}
-		using VectorType =  VectorBase<T, COLS>;
+		static bool constexpr  IsSquareMatrix() { return ROWS == COLS; }
+		using VectorType = VectorBase<T, COLS>;
 		using ElementType = typename VectorType::ElementType;
-		using Base = MatrixBase<T, ROWS, COLS>;
+		using Base = MatrixBase<T, ROWS, COLS, VECTORS>;
 		inline static constexpr size_t Rows = ROWS;
 		inline static constexpr size_t Cols = COLS;
 
@@ -22,14 +28,14 @@ namespace LMath
 		static const MatrixBase Zero;
 		static const MatrixBase Identity;
 
-		#pragma region Constructors
-		
+#pragma region Constructors
+
 		template <typename... Args>
 		constexpr MatrixBase(ElementType first, Args... args)
 		{
-			_Assign<0, ROWS * COLS>(first, args...);
+			_Assign<0, ROWS* COLS>(first, args...);
 		}
-		
+
 		constexpr MatrixBase()
 		{
 #if LMATH_ALWAYS_INITIALIZE_VARIABLES == 1
@@ -42,8 +48,8 @@ namespace LMath
 #pragma endregion
 
 		// Convert matrix to any matrix
-		template <typename U ,size_t RHS_ROWS, size_t RHS_COLS>
-		explicit MatrixBase (const MatrixBase<U, RHS_ROWS, RHS_COLS>& rhs)
+		template <typename U, size_t RHS_ROWS, size_t RHS_COLS>
+		explicit MatrixBase(const MatrixBase<U, RHS_ROWS, RHS_COLS, VECTORS>& rhs)
 		{
 
 			const size_t rowsToConvert = (std::min)(ROWS, RHS_ROWS);
@@ -52,34 +58,43 @@ namespace LMath
 
 			for (size_t row = 0; row < rowsToConvert; row++)
 				for (size_t col = 0; col < colsToConvert; col++)
-					at(row,col) = rhs.at(row,col);
+					at(row, col) = static_cast<ElementType>(rhs.at(row, col));
 		}
 
-		ElementType* data() { return &mElements[0];}
-		const ElementType* data() const { return &mElements[0];}
+		ElementType* data() { return &mElements[0]; }
+		const ElementType* data() const { return &mElements[0]; }
 
 		//Operator *
 		template <size_t RHS_ROWS, size_t RHS_COLS>
-		MatrixBase <ElementType, ROWS, RHS_COLS> operator*(const MatrixBase<ElementType, RHS_ROWS, RHS_COLS>& rhs) const
+		MatrixBase <ElementType, ROWS, RHS_COLS, VECTORS> operator*(const MatrixBase<ElementType, RHS_ROWS, RHS_COLS, VECTORS>& rhs) const
 		{
-			using MatrixOutputType = MatrixBase <ElementType, ROWS, RHS_COLS>;
+			using MatrixOutputType = MatrixBase <ElementType, ROWS, RHS_COLS, VECTORS>;
 			MatrixOutputType result = MatrixOutputType::Zero;
-			for (size_t col = 0; col < RHS_COLS ; col++)
-				for (size_t row = 0; row < ROWS ; row++)
-					for (size_t idx = 0; idx < ROWS ; idx++)
-						result.at(row, col) += this->at(idx, col) * rhs.at(row, idx);
 
+			for (size_t col = 0; col < RHS_COLS; col++)
+				for (size_t row = 0; row < ROWS; row++)
+					for (size_t idx = 0; idx < ROWS; idx++)
+					{
+						if constexpr (VECTORS == MatrixVectors::Row)
+						{
+							result.at(row, col) += this->at(idx, col) * rhs.at(row, idx);
+						}
+						else
+						{
+							result.at(row, col) += this->at(row, idx) * rhs.at(idx, col);
+						}
+					}
 			return result;
 		}
 
 
-		
+
 		MatrixBase operator*(ElementType value) const
 		{
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
-				for (size_t row = 0; row < ROWS; row++) 
-					result.at(row,col) = at(row, col) * value;
+				for (size_t row = 0; row < ROWS; row++)
+					result.at(row, col) = at(row, col) * value;
 
 			return result;
 		}
@@ -87,17 +102,27 @@ namespace LMath
 		VectorType operator*(const VectorType& value) const
 		{
 			VectorType  result = VectorType::Zero;
-			for (size_t col = 0; col < COLS; col++)
+
+			if constexpr (VECTORS == MatrixVectors::Row)
+			{
+
+				for (size_t col = 0; col < COLS; col++)
+					for (size_t row = 0; row < ROWS; row++)
+						result.at(col) += at(row, col) * value.at(row);
+			}
+			else if constexpr (VECTORS == MatrixVectors::Column)
+			{
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(col) += at(row, col) * value.at(row);
-					
+					for (size_t col = 0; col < COLS; col++)
+						result.at(row) += at(row, col) * value.at(col);
+			}
 
 			return result;
 		}
 
 #if LMATH_ENABLE_MATRIX4_MUL_IN_VECTOR3 == 1
 		////special optional common case when multiplying 4X4 matrices with vector3, (add 1.0 to the last componenet).
-		template <typename Vector3 =  VectorBase<ElementType, 3>>
+		template <typename Vector3 = VectorBase<ElementType, 3>>
 		Vector3 operator*(const Vector3& valueVec3) const
 		{
 			static_assert(ROWS == 4 && COLS == 4, "Special case only for multiplying Matrix4 in vector 3 ");
@@ -115,7 +140,7 @@ namespace LMath
 			MatrixBase result;
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
-					result.at(row,col) = at(row,col) + value;
+					result.at(row, col) = at(row, col) + value;
 
 			return result;
 		}
@@ -201,7 +226,7 @@ namespace LMath
 			return mElements[idx];
 		}
 
-		ElementType& at(size_t row,size_t col)
+		ElementType& at(size_t row, size_t col)
 		{
 			return mMatrix[row][col];
 		}
@@ -213,21 +238,33 @@ namespace LMath
 
 		void assignVector(const VectorType& vector, size_t row)
 		{
-			for (size_t col = 0; col < COLS; col++)
-				at(row, col) = vector.at(col);
+			if constexpr (VECTORS == MatrixVectors::Row)
+			{
+				for (size_t col = 0; col < COLS; col++)
+					at(row, col) = vector.at(col);
+			}
+			else if constexpr (VECTORS == MatrixVectors::Column)
+			{
+				for (size_t col = 0; col < COLS; col++)
+					at(col, row) = vector.at(col);
+			}
+			else
+			{
+				static_assert(false, "Invalid state");
+			}
 		}
-		
+
 #pragma endregion
 
 		ElementType Determinant() const
 		{
-			static_assert(IsSquareMatrix() , "Error, Determinant is only applicable to square matrices.");
+			static_assert(IsSquareMatrix(), "Error, Determinant is only applicable to square matrices.");
 			return _ComputeDeterminant(*this);
 		}
 
-		MatrixBase<T, COLS, ROWS>  Transpose() const
+		MatrixBase<T, COLS, ROWS, VECTORS>  Transpose() const
 		{
-			MatrixBase<T, COLS, ROWS> result;
+			MatrixBase<T, COLS, ROWS, VECTORS> result;
 
 			for (size_t col = 0; col < COLS; col++)
 				for (size_t row = 0; row < ROWS; row++)
@@ -250,9 +287,9 @@ namespace LMath
 
 
 
-		MatrixBase<T, ROWS - 1, COLS - 1> SubMartix(size_t rowToRemove, size_t coltoRemove) const
+		MatrixBase<T, ROWS - 1, COLS - 1, VECTORS> SubMartix(size_t rowToRemove, size_t coltoRemove) const
 		{
-			MatrixBase<T, ROWS - 1, COLS - 1> result;
+			MatrixBase<T, ROWS - 1, COLS - 1, VECTORS> result;
 			size_t currentCol = 0;
 			size_t currentRow = 0;
 			for (size_t col = 0; col < COLS; col++)
@@ -271,10 +308,10 @@ namespace LMath
 			}
 
 			return result;
-			
+
 		}
 
-		
+
 		bool IsInvertible() const
 		{
 			if constexpr (IsSquareMatrix() == false)
@@ -304,17 +341,15 @@ namespace LMath
 		MatrixBase Inverse() const
 		{
 			static_assert(IsSquareMatrix(), "Inverse applies only to square matrices.");
-			return  Adjoint().Transpose() / Determinant();
+			return Adjoint().Transpose() / Determinant();
 		}
 
-		
-		
 		QuaternionBase<T> ToQuaternion() const
 		{
 			static_assert(ROWS == 3 && COLS == 3, "Only Matrix 3X3 can be converted to quaternion.");
-			
 
-			
+
+
 			auto  Add = [&](size_t idx1, size_t idx2) -> ElementType
 			{
 				return at(idx1, idx2) + at(idx2, idx1);
@@ -325,41 +360,41 @@ namespace LMath
 				return at(idx1, idx2) - at(idx2, idx1);
 			};
 
-			
+
 			QuaternionBase<T> q;
-			double trace =  at(0, 0) + at(1, 1) + at(2, 2);
+			double trace = at(0, 0) + at(1, 1) + at(2, 2);
 			if (trace > 0)
 			{
 				double s = 0.5 / std::sqrt(trace + 1);
 				q.W() = 0.25 / s;
-				q.X() = Sub(2,1) * s;
-				q.Y() = Sub(0,2) * s;
-				q.Z() = Sub(1,0) * s;
+				q.X() = Sub(2, 1) * s;
+				q.Y() = Sub(0, 2) * s;
+				q.Z() = Sub(1, 0) * s;
 			}
 			else
 			{
-				if (at(0,0)  > at(1,1) && at(0,0) > at(2,2))
+				if (at(0, 0) > at(1, 1) && at(0, 0) > at(2, 2))
 				{
 					double s = 2 * sqrt(1 + at(0, 0) - at(1, 1) - at(2, 2));
-					q.W() = Sub(2,1) / s;
+					q.W() = Sub(2, 1) / s;
 					q.X() = 0.25 * s;
-					q.Y() = Add(0,1) / s;
-					q.Z() = Add(0,2) / s;
+					q.Y() = Add(0, 1) / s;
+					q.Z() = Add(0, 2) / s;
 				}
 				else if (at(1, 1) > at(2, 2))
 				{
 					double s = 2 * sqrt(1 + at(1, 1) - at(0, 0) - at(2, 2));
-					q.W() = Sub(0,2) / s;
-					q.X() = Add(0,1) / s;
+					q.W() = Sub(0, 2) / s;
+					q.X() = Add(0, 1) / s;
 					q.Y() = 0.25 * s;
-					q.Z() = Add(1,2) / s;
+					q.Z() = Add(1, 2) / s;
 				}
 				else
 				{
 					double s = 2 * sqrt(1 + at(2, 2) - at(0, 0) - at(1, 1));
-					q.W() = Sub(1,0) / s;
-					q.X() = Add(0,2) / s;
-					q.Y() = Add(1,2) / s;
+					q.W() = Sub(1, 0) / s;
+					q.X() = Add(0, 2) / s;
+					q.Y() = Add(1, 2) / s;
 					q.Z() = 0.25 * s;
 				}
 			}
@@ -395,9 +430,9 @@ namespace LMath
 			return scaleMatrix;
 		}
 
-		static MatrixBase<ElementType,4,4>  CreateTranslationMatrix(const VectorBase<ElementType,3>& trans)
+		static MatrixBase<ElementType, 4, 4, VECTORS>  CreateTranslationMatrix(const VectorBase<ElementType, 3>& trans)
 		{
-			MatrixBase<ElementType, 4, 4> transMatrix = MatrixBase<ElementType, 4, 4>::Identity;
+			MatrixBase<ElementType, 4, 4, VECTORS> transMatrix = MatrixBase<ElementType, 4, 4>::Identity;
 			transMatrix.at(3, 0) = trans.at(0);
 			transMatrix.at(3, 1) = trans.at(1);
 			transMatrix.at(3, 2) = trans.at(2);
@@ -407,7 +442,7 @@ namespace LMath
 
 		static MatrixBase FromQuaternion(const QuaternionBase<T>& rotation)
 		{
-			static_assert(IsSquareMatrix()," Matrix dimensions must be square");
+			static_assert(IsSquareMatrix(), " Matrix dimensions must be square");
 			static_assert(ROWS >= 3, "Matrix dimensions must be equal or greater to 3");
 
 			MatrixBase rotationMatrix = static_cast<MatrixBase>(Create3X3RotationMatrix(rotation));
@@ -417,10 +452,11 @@ namespace LMath
 
 			return rotationMatrix;
 		}
-		
 
-		static MatrixBase<ElementType, 3,3> Create3X3RotationMatrix(const QuaternionBase<T>& rotation)
+
+		static MatrixBase<ElementType, 3, 3, VECTORS > Create3X3RotationMatrix(const QuaternionBase<T>& rotation)
 		{
+#if LMATH_ENABLE_AUTO_VECTOR_NORMALIZATION == 0
 			const ElementType fTx = rotation.X() + rotation.X();
 			const ElementType fTy = rotation.Y() + rotation.Y();
 			const ElementType fTz = rotation.Z() + rotation.Z();
@@ -433,31 +469,107 @@ namespace LMath
 			const ElementType fTyy = fTy * rotation.Y();
 			const ElementType fTyz = fTz * rotation.Y();
 			const ElementType fTzz = fTz * rotation.Z();
-
-			return
+			if constexpr (VECTORS == MatrixVectors::Row)
 			{
-				// Left
-				  VectorType::L_One - (fTyy + fTzz)
-				, fTxy + fTwz
-				, fTxz - fTwy
+				return
+				{
+					// Left
+					  VectorType::L_One - (fTyy + fTzz)
+					, fTxy + fTwz
+					, fTxz - fTwy
 
-				// Up
-				, fTxy - fTwz
-				, VectorType::L_One - (fTxx + fTzz)
-				, fTyz + fTwx
+					// Up
+					, fTxy - fTwz
+					, VectorType::L_One - (fTxx + fTzz)
+					, fTyz + fTwx
 
-				//Forward
-				, fTxz + fTwy
-				, fTyz - fTwx
-				, VectorType::L_One - (fTxx + fTyy)
+					//Forward
+					, fTxz + fTwy
+					, fTyz - fTwx
+					, VectorType::L_One - (fTxx + fTyy)
 
-			};
+				};
+			}
+			else if constexpr (VECTORS == MatrixVectors::Column)
+			{
+				return
+				{
+					  VectorType::L_One - (fTyy + fTzz)
+					, fTxy - fTwz
+					, fTxz + fTwy
+					, fTxy + fTwz
+					, VectorType::L_One - (fTxx + fTzz)
+					, fTyz - fTwx
+					, fTxz - fTwy
+					, fTyz + fTwx
+					, VectorType::L_One - (fTxx + fTyy)
+				};
+			}
+#else
+			MatrixBase<T, 3, 3, VECTORS> m = MatrixBase<T, 3, 3, VECTORS>::Zero;
+			double sqw = rotation.W() * rotation.W();
+			double sqx = rotation.X() * rotation.X();
+			double sqy = rotation.Y() * rotation.Y();
+			double sqz = rotation.Z() * rotation.Z();
+			double invSqr = 1 / (sqx + sqy + sqz + sqw);
+			m.at(0, 0) = (sqx - sqy - sqz + sqw) * invSqr;
+			m.at(1, 1) = (-sqx + sqy - sqz + sqw) * invSqr;
+			m.at(2, 2) = (-sqx - sqy + sqz + sqw) * invSqr;
+
+
+
+			double tmp1 = rotation.X() * rotation.Y();
+			double tmp2 = rotation.Z() * rotation.W();
+
+
+			if constexpr (VECTORS == MatrixVectors::Row)
+			{
+				m.at(0, 1) = 2.0 * (tmp1 + tmp2) * invSqr;
+				m.at(1, 0) = 2.0 * (tmp1 - tmp2) * invSqr;
+			}
+			else
+			{
+				m.at(1, 0) = 2.0 * (tmp1 + tmp2) * invSqr;
+				m.at(0, 1) = 2.0 * (tmp1 - tmp2) * invSqr;
+			}
+
+
+			tmp1 = rotation.X() * rotation.Z();
+			tmp2 = rotation.Y() * rotation.W();
+
+			if constexpr (VECTORS == MatrixVectors::Row)
+			{
+				m.at(0, 2) = 2.0 * (tmp1 - tmp2) * invSqr;
+				m.at(2, 0) = 2.0 * (tmp1 + tmp2) * invSqr;
+			}
+			else
+			{
+				m.at(2, 0) = 2.0 * (tmp1 - tmp2) * invSqr;
+				m.at(0, 2) = 2.0 * (tmp1 + tmp2) * invSqr;
+			}
+			
+			tmp1 = rotation.Y() * rotation.Z();
+			tmp2 = rotation.X() * rotation.W();
+
+			if constexpr (VECTORS == MatrixVectors::Row)
+			{
+				m.at(1, 2) = 2.0 * (tmp1 + tmp2) * invSqr;
+				m.at(2, 1) = 2.0 * (tmp1 - tmp2) * invSqr;
+			}
+			else
+			{
+				m.at(2, 1) = 2.0 * (tmp1 + tmp2) * invSqr;
+				m.at(1, 2) = 2.0 * (tmp1 - tmp2) * invSqr;
+			}
+
+			return m;
+#endif
 		}
 		
-		static MatrixBase<T, 4, 4>  CreateViewMatrix(const VectorBase<T, 3>& position, const QuaternionBase<T>& orientation)
+		static MatrixBase<T, 4, 4, VECTORS>  CreateViewMatrix(const VectorBase<T, 3>& position, const QuaternionBase<T>& orientation)
 		{
-			using Matrix4 = MatrixBase<T, 4, 4>;
-			using Matrix3 = MatrixBase<T, 3, 3>;
+			using Matrix4 = MatrixBase<T, 4, 4, VECTORS>;
+			using Matrix3 = MatrixBase<T, 3, 3, VECTORS>;
 
 			// Column major order view matrix:
 			//  [ Lx  Ly  Lz  0   ]
@@ -474,7 +586,7 @@ namespace LMath
 
 		}
 
-		static MatrixBase<T, 4, 4>  CreateProjectionMatrix(
+		static MatrixBase<T, 4, 4, VECTORS>  CreateProjectionMatrix(
 			ElementType left
 			, ElementType bottom
 			, ElementType top
@@ -486,7 +598,7 @@ namespace LMath
 		)
 		{
 
-			MatrixBase<T, 4, 4> projectionMatrix = MatrixBase<T, 4, 4>::Zero;
+			MatrixBase<T, 4, 4, VECTORS> projectionMatrix = MatrixBase<T, 4, 4>::Zero;
 
 			auto inv_width = static_cast<ElementType>(1) / (right - left);
 			auto inv_height = static_cast<ElementType>(1) / (top - bottom);
@@ -579,8 +691,8 @@ namespace LMath
 		}
 
 
-		template <size_t MATRIX_SIZE>
-		static ElementType _ComputeDeterminant(const MatrixBase <T, MATRIX_SIZE, MATRIX_SIZE>& matrix)
+		template <size_t MATRIX_SIZE, MatrixVectors VECTORS>
+		static ElementType _ComputeDeterminant(const MatrixBase <T, MATRIX_SIZE, MATRIX_SIZE, VECTORS>& matrix)
 		{
 			size_t ARBITRARY_ROW = 0;
 			if constexpr (MATRIX_SIZE == 2)
@@ -604,11 +716,11 @@ namespace LMath
 		};
 	};
 
-	template <typename T, size_t rows,size_t cols>
-	const MatrixBase<T, rows, cols> MatrixBase<T, rows, cols>::Zero = MatrixBase<T, rows, cols>::CreateZeroMatrix();
+	template <typename T, size_t rows,size_t cols, MatrixVectors vectors>
+	const MatrixBase<T, rows, cols, vectors> MatrixBase<T, rows, cols, vectors>::Zero = MatrixBase<T, rows, cols, vectors>::CreateZeroMatrix();
 	
-	template <typename T, size_t rows, size_t cols>
-	const MatrixBase<T, rows, cols> MatrixBase<T, rows, cols>::Identity = MatrixBase<T, rows, cols>::CreateIdentityMatrix();
+	template <typename T, size_t rows, size_t cols, MatrixVectors vectors>
+	const MatrixBase<T, rows, cols, vectors> MatrixBase<T, rows, cols, vectors>::Identity = MatrixBase<T, rows, cols, vectors>::CreateIdentityMatrix();
 }
 
 #endif

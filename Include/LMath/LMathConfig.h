@@ -57,4 +57,10 @@ SOFTWARE.
 	#define LMATH_ENABLE_MATRIX4_MUL_IN_VECTOR3 1
 #endif
 
+//Disable auto vector normalization by default
+#ifndef LMATH_ENABLE_AUTO_VECTOR_NORMALIZATION
+#define LMATH_ENABLE_AUTO_VECTOR_NORMALIZATION 0
+#endif
+
+
 #endif

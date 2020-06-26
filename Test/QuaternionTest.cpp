@@ -29,7 +29,11 @@
  *  Created by Eric Phillips on October 21, 2016.
  */
 
+
 #include "catch2/catch.hpp"
+
+#define LMATH_ENABLE_AUTO_VECTOR_NORMALIZATION 1
+
 #include <LMath/Quaternion.h>
 
 using namespace LMath;

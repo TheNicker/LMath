@@ -30,7 +30,7 @@ int main()
 
 	//vector supports cartesian notation up to four dimensions (x,y,z,w)
 	Vec2D v2(1, 2);
-	bool equalsOne = v2.X() == 1; // O.K
+	[[maybe_unused]] bool equalsOne = v2.X() == 1; // O.K
 	//v2.Z() == 1; // compiler error, v2 has only X and Y components.
 
 
@@ -46,7 +46,7 @@ int main()
 	// Geometry operations
 	Vec3D vec3d(1, 2, 3);
 	Vec3D reflectionVector = vec3d.Reflect(Vec3D(0, 1, 0));
-	Vec3D cross = vec3d.Cross(reflectionVector);
+	[[maybe_unused]] Vec3D cross = vec3d.Cross(reflectionVector);
 
 	//----------------------------------------------------
 
@@ -62,6 +62,6 @@ int main()
 	BoundingBoxD bb = { {-1,-1,-1 },{5,5,5} };
 
 	//test for overlapping, should return true.
-	bool contains = bb.Contains({ { 0, 0, 0 }, { 1, 1, 1 } }) == BoundingBoxD::IntersectState::Overlap;
+	[[maybe_unused]]  bool contains = bb.RelationTo({ { 0, 0, 0 }, { 1, 1, 1 } }) == BoundingBoxD::Relation::Overlap;
 
 }

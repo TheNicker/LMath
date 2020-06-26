@@ -52,7 +52,13 @@ namespace LMath
 		{
 			//assert("Axis vector must be normalized" && axis.Norm() == Vector3::L_One);
 			const ElementType halfAngle = angle * L_Half;
+
+#if LMATH_ENABLE_AUTO_VECTOR_NORMALIZATION == 1
+			return { sin(halfAngle) / axis.Norm() * axis, cos(halfAngle) };
+#else
 			return { sin(halfAngle) * axis, cos(halfAngle) };
+#endif
+
 		}
 
 		static QuaternionBase FromEuler(const Vector3& rotation)
