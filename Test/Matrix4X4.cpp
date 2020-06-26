@@ -117,7 +117,6 @@ TEST_CASE("Matrix4x4 explicit cast", "[Matrix4x4]")
 TEST_CASE("Matrix4x4 math operations", "[Matrix4x4]")
 {
 	using Matrix3X3 = LMath::MatrixBase<double, 3, 3, LMath::MatrixVectors::Column>;
-	using Matrix4X4 = LMath::MatrixBase<double, 4, 4, LMath::MatrixVectors::Column>;
 	using Quaternion = LMath::QuaternionBase<double>;
 	using Vector3 = LMath::VectorBase<double, 3>;
 	const Quaternion orientation = Quaternion::FromEuler(Vector3(40, 110, 0) * LMath::Constans::DegToRad);
@@ -134,7 +133,7 @@ TEST_CASE("Matrix4x4 math operations", "[Matrix4x4]")
 	auto rotation4 = static_cast<Matrix4X4>(rotation);
 	rotation4.at(3, 3) = 1.0;
 	auto viewMatrix2 = (translationMatrix * rotation4).Inverse();
-	CHECK_MATRIX(viewMatrix, viewMatrix2);
+	CHECK_MATRIX(viewMatrix, viewMatrix2)
 
 };
 

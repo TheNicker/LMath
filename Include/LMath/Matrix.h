@@ -248,10 +248,6 @@ namespace LMath
 				for (size_t col = 0; col < COLS; col++)
 					at(col, row) = vector.at(col);
 			}
-			else
-			{
-				static_assert(false, "Invalid state");
-			}
 		}
 
 #pragma endregion
@@ -691,8 +687,8 @@ namespace LMath
 		}
 
 
-		template <size_t MATRIX_SIZE, MatrixVectors VECTORS>
-		static ElementType _ComputeDeterminant(const MatrixBase <T, MATRIX_SIZE, MATRIX_SIZE, VECTORS>& matrix)
+		template <size_t MATRIX_SIZE, MatrixVectors NUM_VECTORS>
+		static ElementType _ComputeDeterminant(const MatrixBase <T, MATRIX_SIZE, MATRIX_SIZE, NUM_VECTORS>& matrix)
 		{
 			size_t ARBITRARY_ROW = 0;
 			if constexpr (MATRIX_SIZE == 2)
