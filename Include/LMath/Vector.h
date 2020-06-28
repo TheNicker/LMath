@@ -384,7 +384,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBaseTemplate vec;
 			for (size_t i = 0; i < DIM; i++)
-				vec.at(i) = at(i) & value.at(i);
+				vec.at(i) = ModuloOperator(at(i), value.at(i));
 			return vec;
 		}
 
@@ -392,7 +392,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBaseTemplate vec;
 			for (size_t i = 0; i < DIM; i++)
-				vec.at(i) = at(i) & value;
+				vec.at(i) = ModuloOperator(at(i), value);
 			return vec;
 		}
 
@@ -400,21 +400,21 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBaseTemplate ret;
 			for (size_t i = 0; i < DIM; i++)
-				ret.at(i) = value % at(i);
+				ret.at(i) = ModuloOperator(value, vec.at(i));
 			return ret;
 		}
 
 		VectorBaseTemplate& operator %=(ElementType value) 
 		{
 			for (size_t i = 0; i < DIM; i++)
-				at(i) = at(i) &= value;
+				at(i) = ModuloOperator(at(i), value);
 			return this;
 		}
 
 		VectorBaseTemplate& operator %=(const VectorBaseTemplate& value)
 		{
 			for (size_t i = 0; i < DIM; i++)
-				at(i) = at(i) &= value.at(i);
+				at(i) = ModuloOperator(at(i), value.at(i));
 			return this;
 		}
 
@@ -426,7 +426,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBaseTemplate vec;
 			for (size_t i = 0; i < DIM; i++)
-				at(i) = LMath::Modulo(at(i), value.at(i));
+				at(i) = Modulo(at(i), value.at(i));
 			
 			return vec;
 		}
@@ -435,7 +435,7 @@ LMATH_DEFINE_CARTESIAN_COMPONENT_3_GETTER
 		{
 			VectorBaseTemplate vec;
 			for (size_t i = 0; i < DIM; i++)
-				at(i) = LMath::Modulo(at(i), value);
+				at(i) = Modulo(at(i), value);
 			return vec;
 		}
 

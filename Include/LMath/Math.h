@@ -78,6 +78,19 @@ namespace LMath
 		return fmod(mod + fmod(val, mod), mod);
 	}
 
+	// Mathematical Modulo for unsigned integral numbers - just operator %
+	template <typename T, typename std::enable_if_t<std::is_integral_v<T>, int> = 0>
+	constexpr T ModuloOperator(T val, T mod)
+	{
+		return val % mod;
+	}
+
+	template <typename T, typename std::enable_if_t<std::is_floating_point_v<T>,int> = 0>
+	constexpr T ModuloOperator(T val, T mod)
+	{
+		return fmod(val, mod);
+	}
+
 
 	template <typename T, typename std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
 	constexpr T ToDegrees(T val)
