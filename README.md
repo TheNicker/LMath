@@ -24,8 +24,6 @@
 * Designed for 3D graphics.
 * Interface/ implementation separation, allows for instantiation specialization e.g. implementing SIMD instructions for matrix 4X4 multiplication for **any** data type while not changing the Interface.
 
-**Note**: compiles in GCC Clang and MSVC toolset version 14.22 and prior. version 14.23 and onwards is not stable.
-
 ## Library overview
 
 |      Class       |                                           Description                                                         |
